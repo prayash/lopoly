@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		ED431A731DD1A9E700EDAEEB /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED431A721DD1A9E700EDAEEB /* opencv2.framework */; };
 		ED5E5DDC1DD1902400D86E44 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED5E5DDB1DD1902400D86E44 /* main.m */; };
 		ED5E5DDF1DD1902400D86E44 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = ED5E5DDE1DD1902400D86E44 /* AppDelegate.m */; };
 		ED5E5DE21DD1902400D86E44 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ED5E5DE11DD1902400D86E44 /* ViewController.m */; };
@@ -18,10 +17,10 @@
 		ED5E5DF71DD192C000D86E44 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED5E5DF61DD192C000D86E44 /* Accelerate.framework */; };
 		ED5E5DF91DD192CB00D86E44 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED5E5DF81DD192CB00D86E44 /* CoreGraphics.framework */; };
 		ED5E5DFB1DD192D400D86E44 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED5E5DFA1DD192D400D86E44 /* UIKit.framework */; };
+		EDEFF6B21DD557B300A3A342 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDEFF6B11DD557B300A3A342 /* opencv2.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		ED431A721DD1A9E700EDAEEB /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
 		ED5E5DD71DD1902400D86E44 /* LoPoly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoPoly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED5E5DDB1DD1902400D86E44 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		ED5E5DDD1DD1902400D86E44 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -36,6 +35,7 @@
 		ED5E5DF61DD192C000D86E44 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		ED5E5DF81DD192CB00D86E44 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		ED5E5DFA1DD192D400D86E44 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		EDEFF6B11DD557B300A3A342 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../../Dropbox/Escuela/csci_4830/final/LoPoly/opencv2.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,9 +43,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDEFF6B21DD557B300A3A342 /* opencv2.framework in Frameworks */,
 				ED5E5DFB1DD192D400D86E44 /* UIKit.framework in Frameworks */,
 				ED5E5DF91DD192CB00D86E44 /* CoreGraphics.framework in Frameworks */,
-				ED431A731DD1A9E700EDAEEB /* opencv2.framework in Frameworks */,
 				ED5E5DF71DD192C000D86E44 /* Accelerate.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -100,7 +100,7 @@
 		ED5E5DF51DD192C000D86E44 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				ED431A721DD1A9E700EDAEEB /* opencv2.framework */,
+				EDEFF6B11DD557B300A3A342 /* opencv2.framework */,
 				ED5E5DFA1DD192D400D86E44 /* UIKit.framework */,
 				ED5E5DF81DD192CB00D86E44 /* CoreGraphics.framework */,
 				ED5E5DF61DD192C000D86E44 /* Accelerate.framework */,
@@ -306,6 +306,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/LoPoly",
+					/Users/effulgence/Dropbox/Escuela/csci_4830/final/LoPoly,
 				);
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -330,6 +331,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/LoPoly",
+					/Users/effulgence/Dropbox/Escuela/csci_4830/final/LoPoly,
 				);
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PREPROCESSOR_DEFINITIONS = (

@@ -47,20 +47,22 @@ using namespace cv;
   cv::Scalar delaunay_color(255, 255, 255), points_color(255, 255, 255);
   
   // Load a UIImage from a resource file.
-  UIImage *originalImage = [UIImage imageNamed:@"Fiddle.png"];
+  UIImage *originalImage = [UIImage imageNamed:@"ZeBum.jpg"];
   
   // Convert the UIImage to a cv::Mat.
   UIImageToMat(originalImage, originalMat);
   
   // Rectangle to be used with Subdiv2D
   cv::Size size = originalMat.size();
-  cv::rectangle(originalMat, cvPoint(0, 0), cvPoint(size.width, size.height), 155);
-  // cv::Rect rect;
+  // cv::rectangle(originalMat, cvPoint(0, 0), cvPoint(size.width, size.height), 155);
+  cv::Rect rect(0, 0, size.width, size.height);
   
-  // Subdiv2D(rect);
+  cv::Subdiv2D subdiv;
+  subdiv.initDelaunay(rect);
+  
   // Points for storage
   std::vector<cv::Point2f> points;
-  
+
   // SIFT only works on Grayscale
   cv::cvtColor(originalMat, grayMat, cv::COLOR_BGR2GRAY);
   
@@ -77,13 +79,13 @@ using namespace cv;
   // Draw keypoints on image!
   cv::drawKeypoints(grayMat, keypoints, grayMat, cv::Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
   
-  // Render circles on keypoints!
+  // Insert key points into subdivision
     for (std::vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
-      cv::circle(grayMat, *it, 10, points_color, 2);
       subdiv.insert(*it);
+      // cv::circle(grayMat, *it, 10, points_color, 2);
     }
   
-  // Insert points into subdiv
+  // Render Delaunay Triangles
   renderDelaunay(grayMat, subdiv, delaunay_color);
   
   self.imageView.image = MatToUIImage(grayMat);
@@ -94,32 +96,32 @@ using namespace cv;
   
   switch(originalMat.type()) {
     case CV_8UC1:
-    // The cv::Mat is in grayscale format.
-    // Convert to RGB.
-    cv::cvtColor(originalMat, originalMat, cv::COLOR_GRAY2RGB);
-    break;
+      // The cv::Mat is in grayscale format.
+      // Convert to RGB.
+      cv::cvtColor(originalMat, originalMat, cv::COLOR_GRAY2RGB);
+      break;
     
     case CV_8UC4:
-    // The cv::Mat is in RGBA format.
-    // Convert to RGB.
-    cv::cvtColor(originalMat, originalMat, cv::COLOR_RGBA2RGB);
-    
-    // Adjust white balance.
-#ifdef WITH_OPENCV_CONTRIB
-    cv::xphoto::WhiteBalancer *wb;
-    wb->balanceWhite(originalMat, originalMat);
-#endif
-    break;
+      // The cv::Mat is in RGBA format.
+      // Convert to RGB.
+      cv::cvtColor(originalMat, originalMat, cv::COLOR_RGBA2RGB);
+      
+      // Adjust white balance.
+      #ifdef WITH_OPENCV_CONTRIB
+        cv::xphoto::WhiteBalancer *wb;
+        wb->balanceWhite(originalMat, originalMat);
+      #endif
+      break;
     
     case CV_8UC3:
-    // The cv::Mat is in RGB format.
-#ifdef WITH_OPENCV_CONTRIB
-    wb->balanceWhite(originalMat, originalMat);
-#endif
-    break;
+      // The cv::Mat is in RGB format.
+      #ifdef WITH_OPENCV_CONTRIB
+        wb->balanceWhite(originalMat, originalMat);
+      #endif
+      break;
     
     default:
-    break;
+      break;
   }
   
   // Call an update method every 2 seconds.
@@ -172,4 +174,4 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar delaunay_c
   // Dispose of any resources that can be recreated.
 }
   
-  @end
+@end

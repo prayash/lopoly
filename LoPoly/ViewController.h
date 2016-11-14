@@ -10,7 +10,7 @@
   // Main image view which displays the output image
   @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 
-  // A container for image view that allows pinch gestures
+  // A container for imageView that allows pinch gestures
   @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
   // Intervalometer to keep updateImage going

@@ -46,7 +46,7 @@ using namespace cv;
   // * Utility
   
   // ScrollView which controls pinch zoom interaction
-  [self.scrollView setMinimumZoomScale: 1.0f];
+  [self.scrollView setMinimumZoomScale: 1.2f];
   [self.scrollView setMaximumZoomScale: 5.0f];
   [self.scrollView setClipsToBounds: YES];
   
@@ -100,10 +100,10 @@ using namespace cv;
   }
   
   // Define colors for drawing.
-  cv::Scalar delaunay_color(255, 255, 255), points_color(255, 255, 255);
+  cv::Scalar hue(255, 255, 255, 55);
   
   // Render Delaunay Triangles
-  renderDelaunay(grayMat, subdiv, delaunay_color);
+  renderDelaunay(grayMat, subdiv, hue);
   
   // *************************************************************
   // * Voronoi Diagram
@@ -176,7 +176,7 @@ using namespace cv;
 }
 
 // Render Delaunay triangles
-static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar delaunay_color) {
+static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar color) {
 
   std::vector<cv::Point2f> pt(3);
   cv::Size size = img.size();
@@ -193,9 +193,9 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar delaunay_c
     
     // Draw rectangles completely inside the image.
     if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])) {
-      line(img, pt[0], pt[1], delaunay_color, 1, CV_AA, 0);
-      line(img, pt[1], pt[2], delaunay_color, 1, CV_AA, 0);
-      line(img, pt[2], pt[0], delaunay_color, 1, CV_AA, 0);
+      line(img, pt[0], pt[1], color, 1, LINE_AA, 0);
+      line(img, pt[1], pt[2], color, 1, LINE_AA, 0);
+      line(img, pt[2], pt[0], color, 1, LINE_AA, 0);
     }
   }
 }

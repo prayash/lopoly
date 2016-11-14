@@ -23,77 +23,89 @@ using namespace cv;
 // The arc4random() function returns a random 32-bit integer in the range of 0 to 2^32-1 (or 0x100000000). The  first time it is called, the function automatically seeds the random number generator.
 #define RAND_0_1() ((double)arc4random() / 0x100000000)
 
-@interface ViewController () {
-  cv::Mat originalMat;
-  cv::Mat updatedMat;
-  cv::Mat grayMat;
-}
-  
-  @property IBOutlet UIImageView *imageView;
-  @property NSTimer *timer;
-  
-- (void) updateImage;
-  
-  @end
+@interface ViewController ()
+@end
 
 // ************************************************************************************
 
 @implementation ViewController
-  
-- (void)viewDidLoad {
+
+  cv::Mat originalMat;
+  cv::Mat updatedMat;
+  cv::Mat grayMat;
+
+- (void) viewDidLoad {
   [super viewDidLoad];
   
-  // Define colors for drawing.
-  cv::Scalar delaunay_color(255, 255, 255), points_color(255, 255, 255);
+  // * ScrollView which controls pinch zoom interaction
+  [self.scrollView setMinimumZoomScale: 1.0f];
+  [self.scrollView setMaximumZoomScale: 5.0f];
+  [self.scrollView setClipsToBounds: YES];
   
   // Load a UIImage from a resource file.
   UIImage *originalImage = [UIImage imageNamed:@"ZeBum.jpg"];
   
   // Convert the UIImage to a cv::Mat.
   UIImageToMat(originalImage, originalMat);
+
+  // Create a grayscale copy
+  cv::cvtColor(originalMat, grayMat, cv::COLOR_BGR2GRAY);
   
-  // Rectangle to be used with Subdiv2D
-  cv::Size size = originalMat.size();
-  // cv::rectangle(originalMat, cvPoint(0, 0), cvPoint(size.width, size.height), 155);
-  cv::Rect rect(0, 0, size.width, size.height);
+  // *************************************************************
+  // * Feature Detection (SIFT)
+
+  // Declare SIFT object for detection and a keypoints vector for storage
+  cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
+  std::vector<KeyPoint> keypoints;
+  cv::Mat descriptors;
   
-  cv::Subdiv2D subdiv;
-  subdiv.initDelaunay(rect);
+  sift->detect(grayMat, keypoints);
+  sift->compute(grayMat, keypoints, descriptors);
   
   // Points for storage
   std::vector<cv::Point2f> points;
-
-  // SIFT only works on Grayscale
-  cv::cvtColor(originalMat, grayMat, cv::COLOR_BGR2GRAY);
-  
-  // Declare SIFT object for detection and keypoints vector for storage
-  cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
-  std::vector<KeyPoint> keypoints;
-  cv::Mat description;
-  
-  sift->detect(grayMat, keypoints);
-  sift->compute(grayMat, keypoints, description);
-  
   cv::KeyPoint::convert(keypoints, points);
   
   // Draw keypoints on image!
   cv::drawKeypoints(grayMat, keypoints, grayMat, cv::Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
   
+  // *************************************************************
+  // * Delaunay Triangulation
+  
+  // Rectangle to be used with Subdiv2D
+  cv::Size size = originalMat.size();
+  cv::Rect rect(0, 0, size.width, size.height);
+  
+  cv::Subdiv2D subdiv;
+  subdiv.initDelaunay(rect);
+  
   // Insert key points into subdivision
-    for (std::vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
-      subdiv.insert(*it);
-      // cv::circle(grayMat, *it, 10, points_color, 2);
-    }
+  for (std::vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
+    subdiv.insert(*it);
+    // cv::circle(grayMat, *it, 10, points_color, 2);
+  }
+  
+  // Define colors for drawing.
+  cv::Scalar delaunay_color(255, 255, 255), points_color(255, 255, 255);
   
   // Render Delaunay Triangles
   renderDelaunay(grayMat, subdiv, delaunay_color);
   
+  // *************************************************************
+  // * Voronoi Diagram
+  
+  cv::Mat voronoi = cv::Mat::zeros(grayMat.rows, grayMat.cols, CV_8UC3);
+  // renderVoronoi(voronoi, subdiv);
+  
+  // Cast image to UIImage
   self.imageView.image = MatToUIImage(grayMat);
   
-  // grayMat = description; This is pretty wack!
+  // grayMat = descriptors; This is pretty wack!
   originalMat = grayMat;
   
   
+  // *************************************************************
+  // * Basic Image Processing
   switch(originalMat.type()) {
     case CV_8UC1:
       // The cv::Mat is in grayscale format.
@@ -124,8 +136,9 @@ using namespace cv;
       break;
   }
   
-  // Call an update method every 2 seconds.
-  // NSTimer only  res callbacks when the app is in the foreground. This behavior is convenient for our purposes because we only want to update the image when it is visible.
+  // Call an update method every 5 seconds.
+  // NSTimer only res callbacks when the app is in the foreground. This behavior is
+  // convenient for our purposes because we only want to update the image when it is visible.
   self.timer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(updateImage) userInfo:nil repeats:YES];
   
   // cv::circle(originalMat, cvPoint2D32f(400, 400), 100, 155, 5);
@@ -145,7 +158,8 @@ using namespace cv;
   // Convert the updated matrix to a UIImage and display it in the UIImageView.
   self.imageView.image = MatToUIImage(updatedMat);
 }
-  
+
+// Render Delaunay polygons
 static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar delaunay_color) {
   std::vector<Vec6f> triangleList;
   subdiv.getTriangleList(triangleList);
@@ -167,11 +181,43 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar delaunay_c
     }
   }
 }
+
+// Render Voronoi diagram
+static void renderVoronoi(cv::Mat& img, Subdiv2D& subdiv) {
+  vector<vector<Point2f>> facets;
+  vector<Point2f> centers;
+  subdiv.getVoronoiFacetList(vector<int>(), facets, centers);
   
+  vector<Point2f> ifacet;
+  vector<vector<Point2f> > ifacets(1);
   
-- (void)didReceiveMemoryWarning {
+  for(size_t i = 0; i < facets.size(); i++) {
+    ifacet.resize(facets[i].size());
+    
+    for (size_t j = 0; j < facets[i].size(); j++) {
+      ifacet[j] = facets[i][j];
+    }
+    
+    Scalar color;
+    color[0] = rand() & 255;
+    color[1] = rand() & 255;
+    color[2] = rand() & 255;
+    fillConvexPoly(img, ifacet, color, 8, 0);
+    
+    ifacets[0] = ifacet;
+    polylines(img, ifacets, true, Scalar(), 1, CV_AA, 0);
+    circle(img, centers[i], 3, Scalar(), CV_FILLED, CV_AA, 0);
+  }
+}
+  
+
+- (void) didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
   // Dispose of any resources that can be recreated.
+}
+
+- (UIView *) viewForZoomingInScrollView:(UIScrollView *)scrollView {
+  return self.imageView;
 }
   
 @end

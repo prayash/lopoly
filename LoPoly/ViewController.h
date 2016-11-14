@@ -4,8 +4,18 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <UIScrollViewDelegate>
+  // Main image view which displays the output image
+  @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 
+  // A container for image view that allows pinch gestures
+  @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+
+  // Intervalometer to keep updateImage going
+  @property NSTimer *timer;
+
+  // Updates image colors and such.
+  - (void) updateImage;
 
 @end
 

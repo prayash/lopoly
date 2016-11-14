@@ -1,5 +1,8 @@
+// LoPoly
 // ViewController.m
-// This contains the private interface and implementation of the ViewController class.
+// Prayash Thapa
+
+// Main Implementation
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
@@ -20,7 +23,8 @@ using namespace cv;
 
 // ************************************************************************************
 
-// The arc4random() function returns a random 32-bit integer in the range of 0 to 2^32-1 (or 0x100000000). The  first time it is called, the function automatically seeds the random number generator.
+// The arc4random() function returns a random 32-bit integer.
+// The first time it is called, the function automatically seeds the random number generator.
 #define RAND_0_1() ((double)arc4random() / 0x100000000)
 
 @interface ViewController ()
@@ -34,10 +38,14 @@ using namespace cv;
   cv::Mat updatedMat;
   cv::Mat grayMat;
 
+// View loaded, off we go!
 - (void) viewDidLoad {
   [super viewDidLoad];
   
-  // * ScrollView which controls pinch zoom interaction
+  // *************************************************************
+  // * Utility
+  
+  // ScrollView which controls pinch zoom interaction
   [self.scrollView setMinimumZoomScale: 1.0f];
   [self.scrollView setMaximumZoomScale: 5.0f];
   [self.scrollView setClipsToBounds: YES];
@@ -47,6 +55,9 @@ using namespace cv;
   
   // Convert the UIImage to a cv::Mat.
   UIImageToMat(originalImage, originalMat);
+  
+  // Input dimensions
+  cv::Size size = originalMat.size();
 
   // Create a grayscale copy
   cv::cvtColor(originalMat, grayMat, cv::COLOR_BGR2GRAY);
@@ -54,30 +65,33 @@ using namespace cv;
   // *************************************************************
   // * Feature Detection (SIFT)
 
-  // Declare SIFT object for detection and a keypoints vector for storage
+  // Construct SIFT object
   cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
-  std::vector<KeyPoint> keypoints;
-  cv::Mat descriptors;
   
+  // Find keypoints in the image
+  std::vector<KeyPoint> keypoints;
   sift->detect(grayMat, keypoints);
+  
+  // Compute descriptors
+  cv::Mat descriptors;
   sift->compute(grayMat, keypoints, descriptors);
   
-  // Points for storage
-  std::vector<cv::Point2f> points;
-  cv::KeyPoint::convert(keypoints, points);
-  
-  // Draw keypoints on image!
+  // Draw keypoints on image w/ size of keypoint and orientation!
   cv::drawKeypoints(grayMat, keypoints, grayMat, cv::Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
   
   // *************************************************************
   // * Delaunay Triangulation
   
-  // Rectangle to be used with Subdiv2D
-  cv::Size size = originalMat.size();
+  // Rectangle to be used for Subdiv2D
   cv::Rect rect(0, 0, size.width, size.height);
   
+  // Creates a new empty Delaunay subdivision
   cv::Subdiv2D subdiv;
   subdiv.initDelaunay(rect);
+  
+  // Convert keypoints and store their locations in the points vector
+  std::vector<cv::Point2f> points;
+  cv::KeyPoint::convert(keypoints, points);
   
   // Insert key points into subdivision
   for (std::vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
@@ -100,8 +114,14 @@ using namespace cv;
   // Cast image to UIImage
   self.imageView.image = MatToUIImage(grayMat);
   
-  // grayMat = descriptors; This is pretty wack!
+  // grayMat = descriptors; // This is pretty wack!
   originalMat = grayMat;
+  
+  // *************************************************************
+  // * Drawing
+
+  // cv::circle(originalMat, cvPoint2D32f(400, 400), 100, 155, 5);
+  // cv::line(originalMat, cvPoint2D32f(600, 600), cvPoint2D32f(700, 700), 155, 3.5);
   
   
   // *************************************************************
@@ -136,15 +156,11 @@ using namespace cv;
       break;
   }
   
-  // Call an update method every 5 seconds.
-  // NSTimer only res callbacks when the app is in the foreground. This behavior is
-  // convenient for our purposes because we only want to update the image when it is visible.
+  // Call update every 5 seconds (only when the app is in the foreground).
   self.timer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(updateImage) userInfo:nil repeats:YES];
-  
-  // cv::circle(originalMat, cvPoint2D32f(400, 400), 100, 155, 5);
-  // cv::line(originalMat, cvPoint2D32f(600, 600), cvPoint2D32f(700, 700), 155, 3.5);
 }
-  
+
+// Method that processes the final image and renders to imageView
 - (void) updateImage {
   // Generate a random color.
   double r = 0.5 + RAND_0_1() * 1.0;
@@ -159,13 +175,15 @@ using namespace cv;
   self.imageView.image = MatToUIImage(updatedMat);
 }
 
-// Render Delaunay polygons
+// Render Delaunay triangles
 static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar delaunay_color) {
-  std::vector<Vec6f> triangleList;
-  subdiv.getTriangleList(triangleList);
+
   std::vector<cv::Point2f> pt(3);
   cv::Size size = img.size();
   cv::Rect rect(0, 0, size.width, size.height);
+  
+  std::vector<Vec6f> triangleList;
+  subdiv.getTriangleList(triangleList);
   
   for (size_t i = 0; i < triangleList.size(); i++) {
     Vec6f t = triangleList[i];
@@ -184,6 +202,7 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar delaunay_c
 
 // Render Voronoi diagram
 static void renderVoronoi(cv::Mat& img, Subdiv2D& subdiv) {
+  
   vector<vector<Point2f>> facets;
   vector<Point2f> centers;
   subdiv.getVoronoiFacetList(vector<int>(), facets, centers);
@@ -209,15 +228,18 @@ static void renderVoronoi(cv::Mat& img, Subdiv2D& subdiv) {
     circle(img, centers[i], 3, Scalar(), CV_FILLED, CV_AA, 0);
   }
 }
-  
 
+// *************************************************************
+// Dispose of any resources that can be recreated.
 - (void) didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
-  // Dispose of any resources that can be recreated.
 }
 
+// Delegate method for the view to scale when zooming
 - (UIView *) viewForZoomingInScrollView:(UIScrollView *)scrollView {
   return self.imageView;
 }
   
 @end
+
+// ************************************************************************************

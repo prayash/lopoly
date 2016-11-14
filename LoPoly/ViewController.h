@@ -1,4 +1,6 @@
 // ViewController.h
+// Prayash Thapa
+
 // This defines the public interface of a ViewController class. This class is
 // responsible for managing the application's main scene, which we saw in Main.Storyboard.
 

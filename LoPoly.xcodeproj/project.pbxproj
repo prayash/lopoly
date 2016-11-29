@@ -17,6 +17,9 @@
 		ED5E5DF71DD192C000D86E44 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED5E5DF61DD192C000D86E44 /* Accelerate.framework */; };
 		ED5E5DF91DD192CB00D86E44 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED5E5DF81DD192CB00D86E44 /* CoreGraphics.framework */; };
 		ED5E5DFB1DD192D400D86E44 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED5E5DFA1DD192D400D86E44 /* UIKit.framework */; };
+		ED8CD2661DEC9DA000DBE033 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED8CD2651DEC9DA000DBE033 /* QuartzCore.framework */; };
+		ED8CD2681DEC9DA600DBE033 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED8CD2671DEC9DA600DBE033 /* OpenGLES.framework */; };
+		ED8CD26A1DEC9E0300DBE033 /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = ED8CD2691DEC9E0300DBE033 /* splash.png */; };
 		EDC8178B1DD92E390099E793 /* ZeBum.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EDC8178A1DD92E390099E793 /* ZeBum.jpg */; };
 		EDEFF6B21DD557B300A3A342 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDEFF6B11DD557B300A3A342 /* opencv2.framework */; };
 /* End PBXBuildFile section */
@@ -36,6 +39,9 @@
 		ED5E5DF61DD192C000D86E44 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		ED5E5DF81DD192CB00D86E44 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		ED5E5DFA1DD192D400D86E44 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		ED8CD2651DEC9DA000DBE033 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		ED8CD2671DEC9DA600DBE033 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		ED8CD2691DEC9E0300DBE033 /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash.png; sourceTree = "<group>"; };
 		EDC8178A1DD92E390099E793 /* ZeBum.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ZeBum.jpg; sourceTree = "<group>"; };
 		EDEFF6B11DD557B300A3A342 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../../Dropbox/Escuela/csci_4830/final/LoPoly/opencv2.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -45,6 +51,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED8CD2681DEC9DA600DBE033 /* OpenGLES.framework in Frameworks */,
+				ED8CD2661DEC9DA000DBE033 /* QuartzCore.framework in Frameworks */,
 				EDEFF6B21DD557B300A3A342 /* opencv2.framework in Frameworks */,
 				ED5E5DFB1DD192D400D86E44 /* UIKit.framework in Frameworks */,
 				ED5E5DF91DD192CB00D86E44 /* CoreGraphics.framework in Frameworks */,
@@ -62,9 +70,9 @@
 				ED5E5DD81DD1902400D86E44 /* Products */,
 				ED5E5DF51DD192C000D86E44 /* Frameworks */,
 			);
-			indentWidth = 2;
+			indentWidth = 4;
 			sourceTree = "<group>";
-			tabWidth = 2;
+			tabWidth = 4;
 		};
 		ED5E5DD81DD1902400D86E44 /* Products */ = {
 			isa = PBXGroup;
@@ -93,6 +101,7 @@
 		ED5E5DDA1DD1902400D86E44 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				ED8CD2691DEC9E0300DBE033 /* splash.png */,
 				EDC8178A1DD92E390099E793 /* ZeBum.jpg */,
 				ED5E5DF31DD1924200D86E44 /* Fiddle.png */,
 				ED5E5DDB1DD1902400D86E44 /* main.m */,
@@ -103,6 +112,8 @@
 		ED5E5DF51DD192C000D86E44 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				ED8CD2671DEC9DA600DBE033 /* OpenGLES.framework */,
+				ED8CD2651DEC9DA000DBE033 /* QuartzCore.framework */,
 				EDEFF6B11DD557B300A3A342 /* opencv2.framework */,
 				ED5E5DFA1DD192D400D86E44 /* UIKit.framework */,
 				ED5E5DF81DD192CB00D86E44 /* CoreGraphics.framework */,
@@ -174,6 +185,7 @@
 				EDC8178B1DD92E390099E793 /* ZeBum.jpg in Resources */,
 				ED5E5DF41DD1924200D86E44 /* Fiddle.png in Resources */,
 				ED5E5DE71DD1902500D86E44 /* Assets.xcassets in Resources */,
+				ED8CD26A1DEC9E0300DBE033 /* splash.png in Resources */,
 				ED5E5DE51DD1902500D86E44 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

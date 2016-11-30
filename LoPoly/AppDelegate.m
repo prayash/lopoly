@@ -1,6 +1,9 @@
 // AppDelegate.m
+// Prayash Thapa
+
 // This contains the private interface and implementation of the AppDelegate class.
 
+// Surpress Doxygen warnings.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
 
@@ -45,6 +48,5 @@
 - (void)applicationWillTerminate:(UIApplication *)application {
   // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
-
 
 @end

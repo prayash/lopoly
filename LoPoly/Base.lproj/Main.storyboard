@@ -18,40 +18,68 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="maa-9F-fgT">
-                                <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zUZ-Ep-a3b"/>
-                                </subviews>
-                                <color key="backgroundColor" red="1" green="0.4392156862745098" blue="0.29803921568627451" alpha="0.0" colorSpace="calibratedRGB"/>
-                                <constraints>
-                                    <constraint firstItem="zUZ-Ep-a3b" firstAttribute="centerY" secondItem="maa-9F-fgT" secondAttribute="centerY" id="LXp-Jx-fDe"/>
-                                    <constraint firstItem="zUZ-Ep-a3b" firstAttribute="top" secondItem="maa-9F-fgT" secondAttribute="top" id="RqK-mT-ebh"/>
-                                    <constraint firstAttribute="bottom" secondItem="zUZ-Ep-a3b" secondAttribute="bottom" id="T89-wd-24J"/>
-                                    <constraint firstItem="zUZ-Ep-a3b" firstAttribute="leading" secondItem="maa-9F-fgT" secondAttribute="leading" constant="-20" id="aO4-Tp-I5c"/>
-                                    <constraint firstItem="zUZ-Ep-a3b" firstAttribute="centerX" secondItem="maa-9F-fgT" secondAttribute="centerX" id="gF0-mu-5h6"/>
-                                    <constraint firstAttribute="trailing" secondItem="zUZ-Ep-a3b" secondAttribute="trailing" constant="-20" id="kgq-bp-XYy"/>
-                                </constraints>
+                            <imageView contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zUZ-Ep-a3b">
+                                <gestureRecognizers/>
                                 <connections>
-                                    <outlet property="delegate" destination="BYZ-38-t0r" id="bIo-af-fII"/>
+                                    <outletCollection property="gestureRecognizers" destination="alp-ji-lZw" appends="YES" id="Ifk-C7-DRI"/>
                                 </connections>
-                            </scrollView>
+                            </imageView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hk3-yC-J8e">
+                                <items>
+                                    <barButtonItem style="plain" id="2ng-eR-IQv">
+                                        <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="DdX-Uo-skI">
+                                            <rect key="frame" x="16" y="7" width="121" height="30"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <segments>
+                                                <segment title="Color"/>
+                                                <segment title="Gray"/>
+                                            </segments>
+                                            <connections>
+                                                <action selector="onColorModeSelected:" destination="BYZ-38-t0r" eventType="valueChanged" id="MK0-oI-aMj"/>
+                                            </connections>
+                                        </segmentedControl>
+                                    </barButtonItem>
+                                    <barButtonItem image="SwitchCamera.png" style="plain" id="JjZ-TD-wlE">
+                                        <connections>
+                                            <action selector="onSwitchCameraButtonPressed" destination="BYZ-38-t0r" id="xrO-uM-Jy7"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="Rgb-DB-z7Z"/>
+                                    <barButtonItem style="plain" systemItem="save" id="odm-Pb-qS6">
+                                        <connections>
+                                            <action selector="onSaveButtonPressed" destination="BYZ-38-t0r" id="cd2-4b-XKE"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="maa-9F-fgT" secondAttribute="trailing" id="4QR-CU-p8a"/>
-                            <constraint firstItem="maa-9F-fgT" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="GtG-te-soK"/>
-                            <constraint firstItem="maa-9F-fgT" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="IHr-yf-aV1"/>
-                            <constraint firstItem="maa-9F-fgT" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="cBl-xH-BlE"/>
+                            <constraint firstItem="zUZ-Ep-a3b" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="-20" id="6Ha-uT-f4T"/>
+                            <constraint firstItem="zUZ-Ep-a3b" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="6em-pr-bFP"/>
+                            <constraint firstItem="hk3-yC-J8e" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="Cel-7X-yky"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="hk3-yC-J8e" secondAttribute="bottom" id="LQi-qH-y8T"/>
+                            <constraint firstAttribute="trailing" secondItem="zUZ-Ep-a3b" secondAttribute="trailing" constant="-20" id="SdH-W8-HaW"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="zUZ-Ep-a3b" secondAttribute="bottom" id="ggZ-ac-lug"/>
+                            <constraint firstAttribute="trailing" secondItem="hk3-yC-J8e" secondAttribute="trailing" id="t3f-mY-RqU"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="ScrollView" destination="maa-9F-fgT" id="8gD-93-Shh"/>
                         <outlet property="imageView" destination="zUZ-Ep-a3b" id="Wtb-aJ-9lF"/>
+                        <outlet property="toolbar" destination="hk3-yC-J8e" id="wXn-U3-bpg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="alp-ji-lZw">
+                    <connections>
+                        <action selector="onTapToSetPointOfInterest:" destination="BYZ-38-t0r" id="HxV-uZ-NmH"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="136.80000000000001" y="138.98050974512745"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="SwitchCamera.png" width="25" height="25"/>
+    </resources>
 </document>

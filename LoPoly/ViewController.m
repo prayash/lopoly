@@ -81,8 +81,9 @@ using namespace cv;
     
     self.videoCamera = [[VideoCamera alloc] initWithParentView:self.imageView];
     self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPresetHigh;
-    self.videoCamera.defaultFPS = 30;
     self.videoCamera.letterboxPreview = YES;
+    self.videoCamera.defaultFPS = 30;
+    self.videoCamera.grayscaleMode = YES;
     self.videoCamera.delegate = self;
     
     // *************************************************************
@@ -219,11 +220,21 @@ using namespace cv;
     // *************************************************************
     // * Feature Detection (SIFT)
     
-    // Convert to grayscale for feature detection
-    cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+    // nfeatures	The number of best features to retain. The features are ranked by their scores (measured in SIFT algorithm as the local contrast)
+    // nOctaveLayers	The number of layers in each octave. 3 is the value used in D. Lowe paper. The number of octaves is computed automatically from the image resolution.
+    // contrastThreshold	The contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions. The larger the threshold, the less features are produced by the detector.
+    // edgeThreshold	The threshold used to filter out edge-like features. Note that the its meaning is different from the contrastThreshold, i.e. the larger the edgeThreshold, the less features are filtered out (more features are retained).
+    // sigma	The sigma of the Gaussian applied to the input image at the octave #0. If your image is captured with a weak camera with soft lenses, you might want to reduce the number.
     
+    int nF = 70, nOct = 2;
+    double cT = 0.06, eT = 20, s = 2.6;
+
     // Construct SIFT object
+    // cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create(nF, nOct, cT, eT, s);
     cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
+
+    // Convert to grayscale for feature detection
+    if (originalMat.type() != CV_8UC1) cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
     
     // Find keypoints in the image
     std::vector<KeyPoint> keypoints;
@@ -256,11 +267,11 @@ using namespace cv;
     // Insert key points into subdivision
     for (std::vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
         subdiv.insert(*it);
-        // cv::circle(grayMat, *it, 10, points_color, 2);
+        // cv::circle(mat, *it, 10, cv::Scalar(255, 255, 255), 2);
     }
     
     // Define colors for drawing.
-    cv::Scalar hue(255, 255, 255, 0.1f);
+    cv::Scalar hue(255, 255, 255);
     
     // Render Delaunay Triangles
     renderDelaunay(mat, subdiv, hue);
@@ -332,7 +343,7 @@ using namespace cv;
 }
 
 - (void)processImageHelper:(cv::Mat &)mat {
-    // TODO: Implement in Chapter 3.
+    // Ain't nuthin' but a g-thang baybay.
 }
 
 // Method that processes the final image and renders to imageView
@@ -366,11 +377,24 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar color) {
     std::vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     
+    std::vector<cv::Point> polyPoints;
+    
     for (size_t i = 0; i < triangleList.size(); i++) {
         Vec6f t = triangleList[i];
         pt[0] = cv::Point2f(cvRound(t[0]), cvRound(t[1]));
         pt[1] = cv::Point2f(cvRound(t[2]), cvRound(t[3]));
         pt[2] = cv::Point2f(cvRound(t[4]), cvRound(t[5]));
+        
+        // Grab all vertices from the subdivision!
+//        for (size_t i = 0 ; i < points.size(); i++) {
+            polyPoints.push_back(cv::Point( (double)t[0], (double)t[1] ));
+//        }
+
+//        cv::circle(img, pt[0], 2, cv::Scalar(255, 255, 255), 2);
+//        cv::circle(img, pt[1], 2, cv::Scalar(255, 255, 255), 2);
+//        cv::circle(img, pt[2], 2, cv::Scalar(255, 255, 255), 2);
+        
+        // fillConvexPoly(img, &pt[0], 100, cv::Scalar(255, 255, 255));
         
         // Draw rectangles completely inside the image.
         //    if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])) {

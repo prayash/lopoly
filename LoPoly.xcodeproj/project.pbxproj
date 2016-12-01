@@ -363,6 +363,7 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/LoPoly",
 					/Users/effulgence/Dropbox/Escuela/csci_4830/final/LoPoly,
+					/Users/martaine/Dropbox/CSCI/Computer_Vision/Project,
 				);
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -388,6 +389,7 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/LoPoly",
 					/Users/effulgence/Dropbox/Escuela/csci_4830/final/LoPoly,
+					/Users/martaine/Dropbox/CSCI/Computer_Vision/Project,
 				);
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PREPROCESSOR_DEFINITIONS = (

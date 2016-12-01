@@ -52,25 +52,7 @@ using namespace cv;
     
     // *************************************************************
     // * Utility
-    
-    // Create an OpenGL ES context and assign it to the view loaded from storyboard
-//    GLKView *glkView = (GLKView *)self.view;
-//    glkView.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
-//    EAGLContext.setCurrentContext(glkView.context);
-    
-    
-    // Configure renderbuffers created by the view
-    //glkView.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
-    // view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-    // view.drawableStencilFormat = GLKViewDrawableStencilFormat8;
-    
-    // Enable multisampling
-    // view.drawableMultisample = GLKViewDrawableMultisample4X;
-    
-    // EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
-    // [EAGLContext setCurrentContext: context];
-    
-    
+ 
     // Load a UIImage from a resource file.
     // UIImage *originalImage = [UIImage imageNamed:@"ZeBum.jpg"];
     UIImage *originalStillImage = [UIImage imageNamed:@"ZeBum.jpg"];
@@ -86,16 +68,6 @@ using namespace cv;
     self.videoCamera.grayscaleMode = YES;
     self.videoCamera.delegate = self;
     
-    // *************************************************************
-    // * Voronoi Diagram
-    
-    // cv::Mat voronoi = cv::Mat::zeros(grayMat.rows, grayMat.cols, CV_8UC3);
-    // renderVoronoi(voronoi, subdiv);
-    
-    // Cast image to UIImage and display it
-    // self.imageView.image = MatToUIImage(grayMat);
-    
-    // grayMat = descriptors; // This is pretty wack!
     originalMat = grayMat;
     
     // *************************************************************
@@ -369,12 +341,6 @@ using namespace cv;
     
     // Convert the updated matrix to a UIImage and display it in the UIImageView.
     self.imageView.image = MatToUIImage(updatedMat);
-}
-
-- (void) drawRect:(CGRect)rect {
-    // Clear the framebuffer
-    glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 // Render Delaunay triangles

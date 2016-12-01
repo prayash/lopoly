@@ -89,7 +89,7 @@ using namespace cv;
     // *************************************************************
     // * Voronoi Diagram
     
-    //cv::Mat voronoi = cv::Mat::zeros(grayMat.rows, grayMat.cols, CV_8UC3);
+    // cv::Mat voronoi = cv::Mat::zeros(grayMat.rows, grayMat.cols, CV_8UC3);
     // renderVoronoi(voronoi, subdiv);
     
     // Cast image to UIImage and display it
@@ -144,8 +144,14 @@ using namespace cv;
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:true];
+
+#if (TARGET_IPHONE_SIMULATOR)
+    NSLog(@"Running on emulator. No camera available.");
+    [self refresh];
+#else
     self.videoCamera.defaultAVCaptureDevicePosition = AVCaptureDevicePositionFront;
     [self.videoCamera start];
+#endif
 }
 
 - (void)viewDidLayoutSubviews {
@@ -273,8 +279,12 @@ using namespace cv;
     // Define colors for drawing.
     cv::Scalar hue(255, 255, 255);
     
-    // Render Delaunay Triangles
+    // Convert to color because we like colors
+    cv::cvtColor(mat, mat, cv::COLOR_GRAY2RGB);
+    
+    // Render Delaunay Triangles and Voronoi Diagram
     renderDelaunay(mat, subdiv, hue);
+    // renderVoronoi(mat, subdiv);
     
     if (self.videoCamera.running) {
         switch (self.videoCamera.defaultAVCaptureVideoOrientation) {
@@ -370,38 +380,57 @@ using namespace cv;
 // Render Delaunay triangles
 static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar color) {
     
-    std::vector<cv::Point2f> pt(3);
-    cv::Size size = img.size();
-    cv::Rect rect(0, 0, size.width, size.height);
+    std::vector<cv::Point> tVerts(3);
     
+    // Get all triangles!
     std::vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     
-    std::vector<cv::Point> polyPoints;
-    
+    // This is where the mesh gets colored
     for (size_t i = 0; i < triangleList.size(); i++) {
+        
+        // Store triangle vertices into an array
         Vec6f t = triangleList[i];
-        pt[0] = cv::Point2f(cvRound(t[0]), cvRound(t[1]));
-        pt[1] = cv::Point2f(cvRound(t[2]), cvRound(t[3]));
-        pt[2] = cv::Point2f(cvRound(t[4]), cvRound(t[5]));
+        tVerts[0] = cv::Point(cvRound(t[0]), cvRound(t[1]));
+        tVerts[1] = cv::Point(cvRound(t[2]), cvRound(t[3]));
+        tVerts[2] = cv::Point(cvRound(t[4]), cvRound(t[5]));
         
-        // Grab all vertices from the subdivision!
-//        for (size_t i = 0 ; i < points.size(); i++) {
-            polyPoints.push_back(cv::Point( (double)t[0], (double)t[1] ));
-//        }
+        // Sample the color in the Voronoi center
+        cv::Scalar color;
+        color[0] = rand() & 255;
+        color[1] = rand() & 155;
+        color[2] = rand() & 155;
+        
+        // Fill triangles with sampled color
+        fillConvexPoly(img, tVerts, color, 8, 0);
+    }
+}
 
-//        cv::circle(img, pt[0], 2, cv::Scalar(255, 255, 255), 2);
-//        cv::circle(img, pt[1], 2, cv::Scalar(255, 255, 255), 2);
-//        cv::circle(img, pt[2], 2, cv::Scalar(255, 255, 255), 2);
+// Draw voronoi diagram
+static void renderVoronoi(cv::Mat& img, cv::Subdiv2D& subdiv) {
+    vector<vector<Point2f> > facets;
+    vector<Point2f> centers;
+    subdiv.getVoronoiFacetList(vector<int>(), facets, centers);
+    
+    vector<cv::Point> ifacet;
+    vector<vector<cv::Point> > ifacets(1);
+    
+    for (size_t i = 0; i < facets.size(); i++) {
+        ifacet.resize(facets[i].size());
         
-        // fillConvexPoly(img, &pt[0], 100, cv::Scalar(255, 255, 255));
+        for (size_t j = 0; j < facets[i].size(); j++) {
+            ifacet[j] = facets[i][j];
+        }
         
-        // Draw rectangles completely inside the image.
-        //    if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])) {
-        line(img, pt[0], pt[1], color, 1, LINE_AA, 0);
-        line(img, pt[1], pt[2], color, 1, LINE_AA, 0);
-        line(img, pt[2], pt[0], color, 1, LINE_AA, 0);
-        //    }
+        cv::Scalar color;
+        color[0] = rand() & 255;
+        color[1] = rand() & 155;
+        color[2] = rand() & 155;
+        fillConvexPoly(img, ifacet, color, 8, 0);
+        
+        ifacets[0] = ifacet;
+        polylines(img, ifacets, true, cv::Scalar(), 1, CV_AA, 0);
+        circle(img, centers[i], 3, color, CV_FILLED, CV_AA, 0);
     }
 }
 

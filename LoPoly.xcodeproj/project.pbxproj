@@ -28,7 +28,6 @@
 		ED75C7B81DEDF70A00A517AE /* SwitchCamera@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = ED75C7B51DEDF70A00A517AE /* SwitchCamera@3x.png */; };
 		ED75C7BB1DEDF91C00A517AE /* VideoCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = ED75C7BA1DEDF91C00A517AE /* VideoCamera.m */; };
 		ED8CD2661DEC9DA000DBE033 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED8CD2651DEC9DA000DBE033 /* QuartzCore.framework */; };
-		ED8CD2681DEC9DA600DBE033 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED8CD2671DEC9DA600DBE033 /* OpenGLES.framework */; };
 		ED8CD26A1DEC9E0300DBE033 /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = ED8CD2691DEC9E0300DBE033 /* splash.png */; };
 		EDC8178B1DD92E390099E793 /* ZeBum.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EDC8178A1DD92E390099E793 /* ZeBum.jpg */; };
 		EDEFF6B21DD557B300A3A342 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDEFF6B11DD557B300A3A342 /* opencv2.framework */; };
@@ -78,7 +77,6 @@
 				ED75C7AC1DEDF2D800A517AE /* CoreMedia.framework in Frameworks */,
 				ED75C7AA1DEDF2D100A517AE /* AVFoundation.framework in Frameworks */,
 				ED75C7A81DEDF2C800A517AE /* AssetsLibrary.framework in Frameworks */,
-				ED8CD2681DEC9DA600DBE033 /* OpenGLES.framework in Frameworks */,
 				ED8CD2661DEC9DA000DBE033 /* QuartzCore.framework in Frameworks */,
 				EDEFF6B21DD557B300A3A342 /* opencv2.framework in Frameworks */,
 				ED5E5DFB1DD192D400D86E44 /* UIKit.framework in Frameworks */,

@@ -212,7 +212,10 @@ using namespace cv;
     cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
 
     // Convert to grayscale for feature detection
-    if (originalMat.type() != CV_8UC1) cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+    // cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+    
+    string ty =  type2str(mat.type());
+    NSLog(@"Matrix: %s %dx%d \n", ty.c_str(), mat.cols, mat.rows );
     
     // Find keypoints in the image
     std::vector<KeyPoint> keypoints;
@@ -368,11 +371,14 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv) {
         // Sample the color in the Voronoi center
         cv::Scalar color;
         Vec2f c = centersList[i];
+        
+        // Sample grayscale intensity
+        Scalar intensity = img.at<uchar>(cv::Point(c[0], c[1]));
 
         // Sample BGR values at each x,y center value of each triangle
-        color[2] = cv::Vec3b(c[1], c[0])[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;
-        color[1] = cv::Vec3b(c[1], c[0])[1];  //img.at<cv::Vec3b>(y,x)[1]; //rand() & 155;
-        color[0] = cv::Vec3b(c[1], c[0])[2];  //img.at<cv::Vec3b>(y,x)[2]; //rand() & 155;
+//        color[2] = cv::Vec3b(c[1], c[0])[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;
+//        color[1] = cv::Vec3b(c[1], c[0])[1];  //img.at<cv::Vec3b>(y,x)[1]; //rand() & 155;
+//        color[0] = cv::Vec3b(c[1], c[0])[2];  //img.at<cv::Vec3b>(y,x)[2]; //rand() & 155;
         
         // Methods to the right possibly extract pixel at points on image.. result is all black though
 
@@ -381,6 +387,29 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv) {
         
         fillConvexPoly(img, tVerts, color, 8, 0);
     }
+}
+
+string type2str(int type) {
+    string r;
+    
+    uchar depth = type & CV_MAT_DEPTH_MASK;
+    uchar chans = 1 + (type >> CV_CN_SHIFT);
+    
+    switch ( depth ) {
+        case CV_8U:  r = "8U"; break;
+        case CV_8S:  r = "8S"; break;
+        case CV_16U: r = "16U"; break;
+        case CV_16S: r = "16S"; break;
+        case CV_32S: r = "32S"; break;
+        case CV_32F: r = "32F"; break;
+        case CV_64F: r = "64F"; break;
+        default:     r = "User"; break;
+    }
+    
+    r += "C";
+    r += (chans+'0');
+    
+    return r;
 }
 
 // *************************************************************

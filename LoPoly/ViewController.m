@@ -249,7 +249,7 @@ using namespace cv;
     }
     
     // Convert to color because we like colors
-    // cv::cvtColor(mat, mat, cv::COLOR_GRAY2BGR);
+    cv::cvtColor(mat, mat, cv::COLOR_GRAY2BGR);
     
     // Render Delaunay Triangles and Voronoi Diagram
     renderDelaunay(mat, subdiv);
@@ -368,12 +368,17 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv) {
         // Sample the color in the Voronoi center
         cv::Scalar color;
         Vec2f c = centersList[i];
-
-        // Sample BGR values at each x,y center value of each triangle
-        color[2] = cv::Vec3b(c[1], c[0])[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;
-        color[1] = cv::Vec3b(c[1], c[0])[1];  //img.at<cv::Vec3b>(y,x)[1]; //rand() & 155;
-        color[0] = cv::Vec3b(c[1], c[0])[2];  //img.at<cv::Vec3b>(y,x)[2]; //rand() & 155;
         
+        int x = int(c[0]);
+        int y = int(c[1]);
+        cv::Size size = img.size();
+        
+        if(x < size.width && x > 0 && y < size.height && y > 0){
+        // Sample BGR values at each x,y center value of each triangle
+        color[0] = cv::Vec3b(y, x)[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;
+        color[1] = cv::Vec3b(y, x)[1];  //img.at<cv::Vec3b>(y,x)[1]; //rand() & 155;
+        color[2] = cv::Vec3b(y, x)[2];  //img.at<cv::Vec3b>(y,x)[2]; //rand() & 155;
+        }
         // Methods to the right possibly extract pixel at points on image.. result is all black though
 
         // Fill triangles with sampled color

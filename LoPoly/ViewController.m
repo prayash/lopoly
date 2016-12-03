@@ -248,14 +248,11 @@ using namespace cv;
         // cv::circle(mat, *it, 10, cv::Scalar(255, 255, 255), 2);
     }
     
-    // Define colors for drawing.
-    cv::Scalar hue(255, 255, 255);
-    
     // Convert to color because we like colors
-    cv::cvtColor(mat, mat, cv::COLOR_GRAY2BGR);
+    // cv::cvtColor(mat, mat, cv::COLOR_GRAY2BGR);
     
     // Render Delaunay Triangles and Voronoi Diagram
-    renderDelaunay(mat, subdiv, hue);
+    renderDelaunay(mat, subdiv);
     // renderVoronoi(mat, subdiv);
     
     if (self.videoCamera.running) {
@@ -344,7 +341,7 @@ using namespace cv;
 }
 
 // Render Delaunay triangles
-static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar color) {
+static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv) {
     
     std::vector<cv::Point> tVerts(3);
     vector<vector<Point2f> > facets;
@@ -371,7 +368,6 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar color) {
         // Sample the color in the Voronoi center
         cv::Scalar color;
         Vec2f c = centersList[i];
-        
 
         // Sample BGR values at each x,y center value of each triangle
         color[2] = cv::Vec3b(c[1], c[0])[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;

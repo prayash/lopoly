@@ -354,7 +354,7 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar color) {
     std::vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     
-    //Get center values
+    // Get center values
     std::vector<Point2f> centersList;
     subdiv.getVoronoiFacetList(vector<int>(), facets, centersList);
     
@@ -372,41 +372,14 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar color) {
         cv::Scalar color;
         Vec2f c = centersList[i];
         
-        //Sample BGR values at each x,y center value of each triangle
+        // Sample BGR values at each x,y center value of each triangle
         color[2] = cv::Vec3b(c[1], c[0])[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;
         color[1] = cv::Vec3b(c[1], c[0])[1];  //img.at<cv::Vec3b>(y,x)[1]; //rand() & 155;
         color[0] = cv::Vec3b(c[1], c[0])[2];  //img.at<cv::Vec3b>(y,x)[2]; //rand() & 155;
-        //Methods to the right possibly extract pixel at points on image.. result is all black though
+        
+        // Methods to the right possibly extract pixel at points on image.. result is all black though
         // Fill triangles with sampled color
         fillConvexPoly(img, tVerts, color, 8, 0);
-    }
-}
-
-// Draw voronoi diagram
-static void renderVoronoi(cv::Mat& img, cv::Subdiv2D& subdiv) {
-    vector<vector<Point2f> > facets;
-    vector<Point2f> centers;
-    subdiv.getVoronoiFacetList(vector<int>(), facets, centers);
-    
-    vector<cv::Point> ifacet;
-    vector<vector<cv::Point> > ifacets(1);
-    
-    for (size_t i = 0; i < facets.size(); i++) {
-        ifacet.resize(facets[i].size());
-        
-        for (size_t j = 0; j < facets[i].size(); j++) {
-            ifacet[j] = facets[i][j];
-        }
-        
-        cv::Scalar color;
-        color[0] = rand() & 255;
-        color[1] = rand() & 155;
-        color[2] = rand() & 155;
-        fillConvexPoly(img, ifacet, color, 8, 0);
-        
-        ifacets[0] = ifacet;
-        polylines(img, ifacets, true, cv::Scalar(), 1, CV_AA, 0);
-        circle(img, centers[i], 3, color, CV_FILLED, CV_AA, 0);
     }
 }
 

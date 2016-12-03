@@ -349,15 +349,12 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar color) {
     std::vector<cv::Point> tVerts(3);
     vector<vector<Point2f> > facets;
     vector<Point2f> centers;
-    float x = 0.0;
-    float y = 0.0;
-    //Get center values
-    
-    
     
     // Get all triangles!
     std::vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
+    
+    //Get center values
     std::vector<Point2f> centersList;
     subdiv.getVoronoiFacetList(vector<int>(), facets, centersList);
     
@@ -375,19 +372,11 @@ static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv, cv::Scalar color) {
         cv::Scalar color;
         Vec2f c = centersList[i];
         
-        
-        
-//        //Get x and y values for
-//        for (size_t k=0; k<centers.size(); k++){ //goes through all cv::Point2f in the vector
-//             x = centers[k].x;   //first value
-//             y = centers[k].y;   //second value
-//        }
-        
         //Sample BGR values at each x,y center value of each triangle
-        color[0] = cv::Vec3b(c[1], c[0])[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;
+        color[2] = cv::Vec3b(c[1], c[0])[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;
         color[1] = cv::Vec3b(c[1], c[0])[1];  //img.at<cv::Vec3b>(y,x)[1]; //rand() & 155;
-        color[2] = cv::Vec3b(c[1], c[0])[2];  //img.at<cv::Vec3b>(y,x)[2]; //rand() & 155;
-        
+        color[0] = cv::Vec3b(c[1], c[0])[2];  //img.at<cv::Vec3b>(y,x)[2]; //rand() & 155;
+        //Methods to the right possibly extract pixel at points on image.. result is all black though
         // Fill triangles with sampled color
         fillConvexPoly(img, tVerts, color, 8, 0);
     }

@@ -46,6 +46,10 @@ using namespace cv;
     cv::Mat updatedVideoMatGray;
     cv::Mat updatedVideoMatRGBA;
 
+    cv::Vec3b intensity;
+    cv::Scalar color;
+    // uchar b, g, r;
+
 // View loaded, off we go!
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -60,6 +64,8 @@ using namespace cv;
     // Convert the UIImage to a cv::Mat.
     // UIImageToMat(originalImage, originalMat);
     UIImageToMat(originalStillImage, originalStillMat);
+    NSLog(@"*** onLoad: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
+
     
     self.videoCamera = [[VideoCamera alloc] initWithParentView:self.imageView];
     self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPresetHigh;
@@ -69,13 +75,6 @@ using namespace cv;
     self.videoCamera.delegate = self;
     
     originalMat = grayMat;
-    
-    // *************************************************************
-    // * Drawing
-    
-    // cv::circle(originalMat, cvPoint2D32f(400, 400), 100, 155, 5);
-    // cv::line(originalMat, cvPoint2D32f(600, 600), cvPoint2D32f(700, 700), 155, 3.5);
-    
     
     // *************************************************************
     // * Basic Image Processing
@@ -172,31 +171,36 @@ using namespace cv;
         // Refresh the still image.
         UIImage *image;
         if (self.videoCamera.grayscaleMode) {
-            cv::cvtColor(originalStillMat, updatedStillMatGray, cv::COLOR_RGBA2GRAY);
-            [self processImage:updatedStillMatGray];
-            image = MatToUIImage(updatedStillMatGray);
+//            cv::cvtColor(originalStillMat, updatedStillMatGray, cv::COLOR_RGBA2GRAY);
+//            [self processImage:updatedStillMatGray];
+            [self processImage:originalStillMat];
+            image = MatToUIImage(originalStillMat);
         } else {
             cv::cvtColor(originalStillMat, updatedStillMatRGBA, cv::COLOR_RGBA2BGRA);
             [self processImage:updatedStillMatRGBA];
             cv::cvtColor(updatedStillMatRGBA, updatedStillMatRGBA, cv::COLOR_BGRA2RGBA);
             image = MatToUIImage(updatedStillMatRGBA);
         }
+        
+        // Display a still image into the view if the camera isn't running!
         self.imageView.image = image;
     }
 }
 
-- (void)processImage:(cv::Mat &)mat {
+- (void)processImage:(cv::Mat &)finalMat {
     
-//    // Do some OpenCV stuff with the image
-//    cv::Mat image_copy;
-//    cv::cvtColor(mat, image_copy, CV_BGRA2BGR);
-//    
-//    // invert image
-//    bitwise_not(image_copy, image_copy);
-//    cv::cvtColor(image_copy, mat, CV_BGR2BGRA);
-    
+    cv::Mat mat = finalMat.clone();
     // *************************************************************
     // * Feature Detection (SIFT)
+    
+    // Convert to grayscale for feature detection
+    cv::Mat bwCopy;
+    if (mat.type() != CV_8UC1) {
+        cv::cvtColor(mat, bwCopy, cv::COLOR_RGBA2GRAY);
+    } else {
+        bwCopy = mat;
+    }
+    NSLog(@"Before SIFT: %s %dx%d \n", type2str(bwCopy.type()).c_str(), bwCopy.cols, bwCopy.rows);
     
     // nfeatures	The number of best features to retain. The features are ranked by their scores (measured in SIFT algorithm as the local contrast)
     // nOctaveLayers	The number of layers in each octave. 3 is the value used in D. Lowe paper. The number of octaves is computed automatically from the image resolution.
@@ -210,23 +214,20 @@ using namespace cv;
     // Construct SIFT object
     // cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create(nF, nOct, cT, eT, s);
     cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
-
-    // Convert to grayscale for feature detection
-    if (originalMat.type() != CV_8UC1) cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
     
     // Find keypoints in the image
     std::vector<KeyPoint> keypoints;
-    sift->detect(mat, keypoints);
+    sift->detect(bwCopy, keypoints);
     
     // Compute descriptors
     cv::Mat descriptors;
-    sift->compute(mat, keypoints, descriptors);
+    sift->compute(bwCopy, keypoints, descriptors);
     
     // Draw keypoints on image w/ size of keypoint and orientation!
-    // cv::drawKeypoints(mat, keypoints, mat, cv::Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    // cv::drawKeypoints(bwCopy, keypoints, bwCopy, cv::Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
     // *************************************************************
-    // * Delaunay Triangulation
+    // * Triangulation
     
     // Input dimensions
     cv::Size size = mat.size();
@@ -244,16 +245,64 @@ using namespace cv;
     
     // Insert key points into subdivision
     for (std::vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
-        subdiv.insert(*it);
-        // cv::circle(mat, *it, 10, cv::Scalar(255, 255, 255), 2);
+        subdiv.insert(*it); // cv::circle(mat, *it, 10, cv::Scalar(255, 255, 255), 2);
     }
     
-    // Convert to color because we like colors
-    cv::cvtColor(mat, mat, cv::COLOR_GRAY2BGR);
-    
     // Render Delaunay Triangles and Voronoi Diagram
-    renderDelaunay(mat, subdiv);
-    // renderVoronoi(mat, subdiv);
+    NSLog(@"Before Triangulation: %s %dx%d \n", type2str(mat.type()).c_str(), mat.cols, mat.rows );
+//    color[0] = rand() & 255; color[1] = rand() & 155; color[2] = rand() & 155; color[3] = 205;
+    
+    // Vertices of triangulation
+    std::vector<cv::Point> tVerts(3);
+    vector<vector<Point2f>> facets;
+    vector<Point2f> centers;
+    
+    // Get all triangles!
+    std::vector<Vec6f> triangleList;
+    subdiv.getTriangleList(triangleList);
+    
+    // Get center values
+    std::vector<Point2f> centersList;
+    subdiv.getVoronoiFacetList(vector<int>(), facets, centersList);
+    
+    // This is where the mesh gets colored
+    for (size_t i = 0; i < triangleList.size(); i++) {
+        
+        // Store triangle vertices into an array
+        Vec6f t = triangleList[i];
+        tVerts[0] = cv::Point(cvRound(t[0]), cvRound(t[1]));
+        tVerts[1] = cv::Point(cvRound(t[2]), cvRound(t[3]));
+        tVerts[2] = cv::Point(cvRound(t[4]), cvRound(t[5]));
+
+        Vec2f c = centersList[i];
+
+        int x = int(c[0]);
+        int y = int(c[1]);
+        cv::Size size = mat.size();
+        
+        // Stay inside bounding rectangle
+//        if (rect.contains(cv::Point(x, y))) {
+        if (x < size.width && x > 0 && y < size.height && y > 0) {
+            intensity = mat.at<cv::Vec3b>(y, x);
+            int b = intensity.val[0];
+            int g = intensity.val[1];
+            int r = intensity.val[2];
+            NSLog(@"x: %d, y: %d \t B: %d, G: %d, R: %d", x, y, b, g, r);
+            
+            // RGB <- BGR
+            color[0] = intensity.val[2];
+            color[1] = intensity.val[1];
+            color[2] = intensity.val[0];
+            color[3] = 205;
+            
+//            line(finalMat, tVerts[0], tVerts[1], color, 1, CV_AA, 0);
+//            line(finalMat, tVerts[1], tVerts[2], color, 1, CV_AA, 0);
+//            line(finalMat, tVerts[2], tVerts[0], color, 1, CV_AA, 0);
+            
+            fillConvexPoly(finalMat, tVerts, color, 8, 0);
+//            cv::circle(finalMat, cv::Point(x, y), 10, color, 2);
+        }
+    }
     
     if (self.videoCamera.running) {
         switch (self.videoCamera.defaultAVCaptureVideoOrientation) {
@@ -267,9 +316,6 @@ using namespace cv;
                 break;
         }
     }
-    
-    [self processImageHelper:mat];
-    
     if (self.saveNextFrame) {
         // The video frame, 'mat', is not safe for long-running
         // operations such as saving to file. Thus, we copy its
@@ -300,7 +346,6 @@ using namespace cv;
 }
 
 - (IBAction)onSwitchCameraButtonPressed {
-    
     if (self.videoCamera.running) {
         switch (self.videoCamera.defaultAVCaptureDevicePosition) {
             case AVCaptureDevicePositionFront:
@@ -321,10 +366,6 @@ using namespace cv;
     }
 }
 
-- (void)processImageHelper:(cv::Mat &)mat {
-    // Ain't nuthin' but a g-thang baybay.
-}
-
 // Method that processes the final image and renders to imageView
 - (void)updateImage {
     // Generate a random color.
@@ -340,52 +381,27 @@ using namespace cv;
     self.imageView.image = MatToUIImage(updatedMat);
 }
 
-// Render Delaunay triangles
-static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv) {
+string type2str(int type) {
+    string r;
     
-    std::vector<cv::Point> tVerts(3);
-    vector<vector<Point2f> > facets;
-    vector<Point2f> centers;
+    uchar depth = type & CV_MAT_DEPTH_MASK;
+    uchar chans = 1 + (type >> CV_CN_SHIFT);
     
-    // Get all triangles!
-    std::vector<Vec6f> triangleList;
-    subdiv.getTriangleList(triangleList);
-    
-    // Get center values
-    std::vector<Point2f> centersList;
-    subdiv.getVoronoiFacetList(vector<int>(), facets, centersList);
-    
-    // This is where the mesh gets colored
-    for (size_t i = 0; i < triangleList.size(); i++) {
-        
-        // Store triangle vertices into an array
-        Vec6f t = triangleList[i];
-        tVerts[0] = cv::Point(cvRound(t[0]), cvRound(t[1]));
-        tVerts[1] = cv::Point(cvRound(t[2]), cvRound(t[3]));
-        tVerts[2] = cv::Point(cvRound(t[4]), cvRound(t[5]));
-        
-        
-        // Sample the color in the Voronoi center
-        cv::Scalar color;
-        Vec2f c = centersList[i];
-        
-        int x = int(c[0]);
-        int y = int(c[1]);
-        cv::Size size = img.size();
-        
-        if(x < size.width && x > 0 && y < size.height && y > 0){
-        // Sample BGR values at each x,y center value of each triangle
-        color[0] = cv::Vec3b(y, x)[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;
-        color[1] = cv::Vec3b(y, x)[1];  //img.at<cv::Vec3b>(y,x)[1]; //rand() & 155;
-        color[2] = cv::Vec3b(y, x)[2];  //img.at<cv::Vec3b>(y,x)[2]; //rand() & 155;
-        }
-        // Methods to the right possibly extract pixel at points on image.. result is all black though
-
-        // Fill triangles with sampled color
-        //cv::Scalar color(b,g,r);
-        
-        fillConvexPoly(img, tVerts, color, 8, 0);
+    switch ( depth ) {
+        case CV_8U:  r = "8U"; break;
+        case CV_8S:  r = "8S"; break;
+        case CV_16U: r = "16U"; break;
+        case CV_16S: r = "16S"; break;
+        case CV_32S: r = "32S"; break;
+        case CV_32F: r = "32F"; break;
+        case CV_64F: r = "64F"; break;
+        default:     r = "User"; break;
     }
+    
+    r += "C";
+    r += (chans+'0');
+    
+    return r;
 }
 
 // *************************************************************

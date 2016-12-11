@@ -12,6 +12,9 @@
 
 #import "VideoCamera.h"
 
+#import "LGSideMenuController.h"
+#import "UIViewController+LGSideMenuController.h"
+
 @interface ViewController : UIViewController <CvVideoCameraDelegate>
 
 // Main image view which displays the output image
@@ -27,11 +30,14 @@
 @property IBOutlet UIToolbar *toolbar;
 @property VideoCamera *videoCamera;
 @property BOOL saveNextFrame;
+@property BOOL renderLinesOnly;
+@property BOOL renderPolygonsOnly;
 
 - (IBAction)onTapToSetPointOfInterest:(UITapGestureRecognizer *)tapGesture;
-- (IBAction)onColorModeSelected:(UISegmentedControl *)segmentedControl;
 - (IBAction)onSwitchCameraButtonPressed;
 - (IBAction)onSaveButtonPressed;
+- (IBAction)onLinesPressed:(id)sender;
+- (IBAction)onPolyPressed:(id)sender;
 
 - (void)refresh;
 - (void)processImage:(cv::Mat &)mat;
@@ -43,6 +49,8 @@
                                  serviceType:(NSString *)serviceType image:(UIImage *)image;
 - (void)startBusyMode;
 - (void)stopBusyMode;
+
+- (void)setLeftViewEnabledWithWidth:(CGFloat)width presentationStyle:(LGSideMenuPresentationStyle)presentationStyle alwaysVisibleOptions:(LGSideMenuAlwaysVisibleOptions)alwaysVisibleOptions;
 
 @end
 

@@ -36,78 +36,65 @@ using namespace cv;
 
 @implementation ViewController
 
-    cv::Mat originalMat;
-    cv::Mat updatedMat;
-    cv::Mat grayMat;
+cv::Mat originalMat;
+cv::Mat updatedMat;
+cv::Mat grayMat;
 
-    cv::Mat originalStillMat;
-    cv::Mat updatedStillMatGray;
-    cv::Mat updatedStillMatRGBA;
-    cv::Mat updatedVideoMatGray;
-    cv::Mat updatedVideoMatRGBA;
+cv::Mat originalStillMat;
+cv::Mat updatedStillMatGray;
+cv::Mat updatedStillMatRGBA;
+cv::Mat updatedVideoMatGray;
+cv::Mat updatedVideoMatRGBA;
+
+cv::Vec3b intensity;
+cv::Scalar color;
 
 // View loaded, off we go!
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.renderLinesOnly = true;
+    self.renderPolygonsOnly = false;
     
     // *************************************************************
     // * Utility
- 
+    
     // Load a UIImage from a resource file.
-    // UIImage *originalImage = [UIImage imageNamed:@"ZeBum.jpg"];
-    UIImage *originalStillImage = [UIImage imageNamed:@"ZeBum.jpg"];
+    UIImage *originalImage = [UIImage imageNamed:@"ZeBum.jpg"];
     
     // Convert the UIImage to a cv::Mat.
-    // UIImageToMat(originalImage, originalMat);
-    UIImageToMat(originalStillImage, originalStillMat);
+    UIImageToMat(originalImage, originalStillMat);
+    NSLog(@"*** onLoad: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
+    
     
     self.videoCamera = [[VideoCamera alloc] initWithParentView:self.imageView];
-    self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPresetHigh;
+    self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPresetMedium;
     self.videoCamera.letterboxPreview = YES;
     self.videoCamera.defaultFPS = 30;
-    self.videoCamera.grayscaleMode = YES;
+    self.videoCamera.grayscaleMode = NO;
     self.videoCamera.delegate = self;
     
     originalMat = grayMat;
     
     // *************************************************************
-    // * Drawing
-    
-    // cv::circle(originalMat, cvPoint2D32f(400, 400), 100, 155, 5);
-    // cv::line(originalMat, cvPoint2D32f(600, 600), cvPoint2D32f(700, 700), 155, 3.5);
-    
-    
-    // *************************************************************
     // * Basic Image Processing
-//    switch(originalMat.type()) {
-//        case CV_8UC1:
-//            // The cv::Mat is in grayscale format.
-//            // Convert to RGB.
-//            cv::cvtColor(originalMat, originalMat, cv::COLOR_GRAY2RGB);
-//            break;
-//            
-//        case CV_8UC4:
-//            // The cv::Mat is in RGBA format.
-//            // Convert to RGB.
-//            cv::cvtColor(originalMat, originalMat, cv::COLOR_RGBA2RGB);
-//            
-//            // Adjust white balance.
-//#ifdef WITH_OPENCV_CONTRIB
-//            cv::xphoto::WhiteBalancer *wb;
-//            wb->balanceWhite(originalMat, originalMat);
-//#endif
-//            break;
-//            
-//        case CV_8UC3:
-//            // The cv::Mat is in RGB format.
-//#ifdef WITH_OPENCV_CONTRIB
-//            wb->balanceWhite(originalMat, originalMat);
-//#endif
-//            break;
-//            
-//        default:
-//            break;
-//    }
+    //    switch(originalMat.type()) {
+    //        case CV_8UC1:
+    //            // The cv::Mat is in grayscale format. Convert to RGB.
+    //            cv::cvtColor(originalMat, originalMat, cv::COLOR_GRAY2RGB);
+    //            break;
+    //
+    //        case CV_8UC4:
+    //            // The cv::Mat is in RGBA format. Convert to RGB.
+    //            cv::cvtColor(originalMat, originalMat, cv::COLOR_RGBA2RGB);
+    //            break;
+    //
+    //        case CV_8UC3:
+    //            // The cv::Mat is in RGB format.
+    //            break;
+    //
+    //        default:
+    //            break;
+    //    }
     
     // Call update every 5 seconds (only when the app is in the foreground).
     // self.timer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(updateImage) userInfo:nil repeats:YES];
@@ -116,7 +103,7 @@ using namespace cv;
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:true];
-
+    
 #if (TARGET_IPHONE_SIMULATOR)
     NSLog(@"Running on emulator. No camera available.");
     [self refresh];
@@ -160,6 +147,27 @@ using namespace cv;
     }
 }
 
+- (IBAction)onLinesPressed:(id)sender {
+    [self renderMethod:@"lines"];
+}
+
+- (IBAction)onPolyPressed:(id)sender {
+    [self renderMethod:@"polygons"];
+}
+
+- (void)renderMethod:(NSString *)m {
+    if ([m isEqualToString:@"lines"]) {
+        NSLog(@"Rendering only lines and circles.");
+        self.renderPolygonsOnly = false;
+        self.renderLinesOnly = true;
+    } else if ([m isEqualToString:@"polygons"]) {
+        NSLog(@"Rendering only polygons.");
+        self.renderPolygonsOnly = true;
+        self.renderLinesOnly = false;
+    }
+}
+
+// Refresh and update the imageView
 - (void)refresh {
     if (self.videoCamera.running) {
         // Hide the still image.
@@ -171,29 +179,19 @@ using namespace cv;
     } else {
         // Refresh the still image.
         UIImage *image;
-        if (self.videoCamera.grayscaleMode) {
-            cv::cvtColor(originalStillMat, updatedStillMatGray, cv::COLOR_RGBA2GRAY);
-            [self processImage:updatedStillMatGray];
-            image = MatToUIImage(updatedStillMatGray);
-        } else {
-            cv::cvtColor(originalStillMat, updatedStillMatRGBA, cv::COLOR_RGBA2BGRA);
-            [self processImage:updatedStillMatRGBA];
-            cv::cvtColor(updatedStillMatRGBA, updatedStillMatRGBA, cv::COLOR_BGRA2RGBA);
-            image = MatToUIImage(updatedStillMatRGBA);
-        }
+        //        cv::cvtColor(originalStillMat, updatedStillMatGray, cv::COLOR_RGBA2GRAY);
+        //        [self processImage:updatedStillMatGray];
+        // NSLog(@"process: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
+        [self processImage:originalStillMat];
+        image = MatToUIImage(originalStillMat);
+        
+        // Display a still image into the view if the camera isn't running!
         self.imageView.image = image;
     }
 }
 
-- (void)processImage:(cv::Mat &)mat {
-    
-//    // Do some OpenCV stuff with the image
-//    cv::Mat image_copy;
-//    cv::cvtColor(mat, image_copy, CV_BGRA2BGR);
-//    
-//    // invert image
-//    bitwise_not(image_copy, image_copy);
-//    cv::cvtColor(image_copy, mat, CV_BGR2BGRA);
+- (void)processImage:(cv::Mat &)finalMat {
+    cv::Mat mat = finalMat.clone();
     
     // *************************************************************
     // * Feature Detection (SIFT)
@@ -206,16 +204,12 @@ using namespace cv;
     
     int nF = 70, nOct = 2;
     double cT = 0.06, eT = 20, s = 2.6;
-
+    
+    NSLog(@"Before SIFT: %s %dx%d \n", type2str(mat.type()).c_str(), mat.cols, mat.rows);
+    
     // Construct SIFT object
     // cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create(nF, nOct, cT, eT, s);
     cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
-
-    // Convert to grayscale for feature detection
-    // cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
-    
-    string ty =  type2str(mat.type());
-    NSLog(@"Matrix: %s %dx%d \n", ty.c_str(), mat.cols, mat.rows );
     
     // Find keypoints in the image
     std::vector<KeyPoint> keypoints;
@@ -226,10 +220,10 @@ using namespace cv;
     sift->compute(mat, keypoints, descriptors);
     
     // Draw keypoints on image w/ size of keypoint and orientation!
-    // cv::drawKeypoints(mat, keypoints, mat, cv::Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-
+    //     cv::drawKeypoints(bwCopy, keypoints, bwCopy, cv::Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    
     // *************************************************************
-    // * Delaunay Triangulation
+    // * Triangulation
     
     // Input dimensions
     cv::Size size = mat.size();
@@ -247,16 +241,66 @@ using namespace cv;
     
     // Insert key points into subdivision
     for (std::vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
-        subdiv.insert(*it);
-        // cv::circle(mat, *it, 10, cv::Scalar(255, 255, 255), 2);
+        subdiv.insert(*it); // cv::circle(mat, *it, 10, cv::Scalar(255, 255, 255), 2);
     }
     
-    // Convert to color because we like colors
-    // cv::cvtColor(mat, mat, cv::COLOR_GRAY2BGR);
-    
     // Render Delaunay Triangles and Voronoi Diagram
-    renderDelaunay(mat, subdiv);
-    // renderVoronoi(mat, subdiv);
+    NSLog(@"Before Triangulation: %s %dx%d \n", type2str(mat.type()).c_str(), mat.cols, mat.rows);
+    //    color[0] = rand() & 255; color[1] = rand() & 155; color[2] = rand() & 155; color[3] = 205;
+    
+    // Vertices of triangulation
+    std::vector<cv::Point> tVerts(3);
+    vector<vector<Point2f>> facets;
+    vector<Point2f> centers;
+    
+    // Get all triangles!
+    std::vector<Vec6f> triangleList;
+    subdiv.getTriangleList(triangleList);
+    
+    // Get center values
+    std::vector<Point2f> centersList;
+    subdiv.getVoronoiFacetList(vector<int>(), facets, centersList);
+    
+    // This is where the mesh gets colored
+    for (size_t i = 0; i < triangleList.size(); i++) {
+        
+        // Store triangle vertices into an array
+        Vec6f t = triangleList[i];
+        tVerts[0] = cv::Point(cvRound(t[0]), cvRound(t[1]));
+        tVerts[1] = cv::Point(cvRound(t[2]), cvRound(t[3]));
+        tVerts[2] = cv::Point(cvRound(t[4]), cvRound(t[5]));
+        
+        Vec2f c;
+        if (!centersList.empty()) c = centersList[i];
+        
+        int x = int(c[0]);
+        int y = int(c[1]);
+        
+        // Stay inside bounding rectangle
+        if (rect.contains(cv::Point(x, y))) {
+//        if (x < size.width && x > 0 && y < size.height && y > 0) {
+            intensity = mat.at<cv::Vec3b>(cv::Point(x, y));
+            uchar b = intensity.val[0];
+            uchar g = intensity.val[1];
+            uchar r = intensity.val[2];
+            NSLog(@"x: %d, y: %d \t B: %d, G: %d, R: %d", x, y, b, g, r);
+            
+            // RGBA <- BGR
+            color[0] = r;
+            color[1] = g;
+            color[2] = b;
+            color[3] = 155;
+            
+            if (self.renderPolygonsOnly) cv::fillConvexPoly(finalMat, tVerts, color, LINE_AA, 0);
+            
+            if (self.renderLinesOnly) {
+                line(finalMat, tVerts[0], tVerts[1], color, 1, CV_AA, 0);
+                line(finalMat, tVerts[1], tVerts[2], color, 1, CV_AA, 0);
+                line(finalMat, tVerts[2], tVerts[0], color, 1, CV_AA, 0);
+                cv::circle(finalMat, cv::Point(x, y), 3, color, -2);
+            }
+        }
+    }
     
     if (self.videoCamera.running) {
         switch (self.videoCamera.defaultAVCaptureVideoOrientation) {
@@ -270,8 +314,6 @@ using namespace cv;
                 break;
         }
     }
-    
-    [self processImageHelper:mat];
     
     if (self.saveNextFrame) {
         // The video frame, 'mat', is not safe for long-running
@@ -290,20 +332,7 @@ using namespace cv;
     }
 }
 
-- (IBAction)onColorModeSelected:(UISegmentedControl *)segmentedControl {
-    switch (segmentedControl.selectedSegmentIndex) {
-        case 0:
-            self.videoCamera.grayscaleMode = NO;
-            break;
-        default:
-            self.videoCamera.grayscaleMode = YES;
-            break;
-    }
-    [self refresh];
-}
-
 - (IBAction)onSwitchCameraButtonPressed {
-    
     if (self.videoCamera.running) {
         switch (self.videoCamera.defaultAVCaptureDevicePosition) {
             case AVCaptureDevicePositionFront:
@@ -324,10 +353,6 @@ using namespace cv;
     }
 }
 
-- (void)processImageHelper:(cv::Mat &)mat {
-    // Ain't nuthin' but a g-thang baybay.
-}
-
 // Method that processes the final image and renders to imageView
 - (void)updateImage {
     // Generate a random color.
@@ -343,51 +368,6 @@ using namespace cv;
     self.imageView.image = MatToUIImage(updatedMat);
 }
 
-// Render Delaunay triangles
-static void renderDelaunay(cv::Mat& img, Subdiv2D& subdiv) {
-    
-    std::vector<cv::Point> tVerts(3);
-    vector<vector<Point2f> > facets;
-    vector<Point2f> centers;
-    
-    // Get all triangles!
-    std::vector<Vec6f> triangleList;
-    subdiv.getTriangleList(triangleList);
-    
-    // Get center values
-    std::vector<Point2f> centersList;
-    subdiv.getVoronoiFacetList(vector<int>(), facets, centersList);
-    
-    // This is where the mesh gets colored
-    for (size_t i = 0; i < triangleList.size(); i++) {
-        
-        // Store triangle vertices into an array
-        Vec6f t = triangleList[i];
-        tVerts[0] = cv::Point(cvRound(t[0]), cvRound(t[1]));
-        tVerts[1] = cv::Point(cvRound(t[2]), cvRound(t[3]));
-        tVerts[2] = cv::Point(cvRound(t[4]), cvRound(t[5]));
-        
-        
-        // Sample the color in the Voronoi center
-        cv::Scalar color;
-        Vec2f c = centersList[i];
-        
-        // Sample grayscale intensity
-        Scalar intensity = img.at<uchar>(cv::Point(c[0], c[1]));
-
-        // Sample BGR values at each x,y center value of each triangle
-//        color[2] = cv::Vec3b(c[1], c[0])[0];  //img.at<cv::Vec3b>(y,x)[0]; //rand() & 255;
-//        color[1] = cv::Vec3b(c[1], c[0])[1];  //img.at<cv::Vec3b>(y,x)[1]; //rand() & 155;
-//        color[0] = cv::Vec3b(c[1], c[0])[2];  //img.at<cv::Vec3b>(y,x)[2]; //rand() & 155;
-        
-        // Methods to the right possibly extract pixel at points on image.. result is all black though
-
-        // Fill triangles with sampled color
-        //cv::Scalar color(b,g,r);
-        
-        fillConvexPoly(img, tVerts, color, 8, 0);
-    }
-}
 
 string type2str(int type) {
     string r;

@@ -24,24 +24,22 @@
                                     <outletCollection property="gestureRecognizers" destination="alp-ji-lZw" appends="YES" id="Ifk-C7-DRI"/>
                                 </connections>
                             </imageView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hk3-yC-J8e">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="hk3-yC-J8e">
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <items>
-                                    <barButtonItem style="plain" id="2ng-eR-IQv">
-                                        <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="DdX-Uo-skI">
-                                            <rect key="frame" x="16" y="7" width="121" height="30"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <segments>
-                                                <segment title="Color"/>
-                                                <segment title="Gray"/>
-                                            </segments>
-                                            <connections>
-                                                <action selector="onColorModeSelected:" destination="BYZ-38-t0r" eventType="valueChanged" id="MK0-oI-aMj"/>
-                                            </connections>
-                                        </segmentedControl>
-                                    </barButtonItem>
                                     <barButtonItem image="SwitchCamera.png" style="plain" id="JjZ-TD-wlE">
                                         <connections>
                                             <action selector="onSwitchCameraButtonPressed" destination="BYZ-38-t0r" id="xrO-uM-Jy7"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Lines" width="49.5" id="KK7-kU-UwZ">
+                                        <connections>
+                                            <action selector="onLinesPressed:" destination="BYZ-38-t0r" id="T22-ed-djv"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Poly" id="MGG-Y0-yZh">
+                                        <connections>
+                                            <action selector="onPolyPressed:" destination="BYZ-38-t0r" id="DrE-SY-fhJ"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="Rgb-DB-z7Z"/>
@@ -51,6 +49,7 @@
                                         </connections>
                                     </barButtonItem>
                                 </items>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </toolbar>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

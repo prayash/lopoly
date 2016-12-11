@@ -54,6 +54,7 @@ using namespace cv;
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    
     // *************************************************************
     // * Utility
  
@@ -68,10 +69,10 @@ using namespace cv;
 
     
     self.videoCamera = [[VideoCamera alloc] initWithParentView:self.imageView];
-    self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPresetHigh;
+    self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPresetMedium;
     self.videoCamera.letterboxPreview = YES;
     self.videoCamera.defaultFPS = 30;
-    self.videoCamera.grayscaleMode = YES;
+    self.videoCamera.grayscaleMode = NO;
     self.videoCamera.delegate = self;
     
     originalMat = grayMat;
@@ -80,28 +81,17 @@ using namespace cv;
     // * Basic Image Processing
 //    switch(originalMat.type()) {
 //        case CV_8UC1:
-//            // The cv::Mat is in grayscale format.
-//            // Convert to RGB.
+//            // The cv::Mat is in grayscale format. Convert to RGB.
 //            cv::cvtColor(originalMat, originalMat, cv::COLOR_GRAY2RGB);
 //            break;
 //            
 //        case CV_8UC4:
-//            // The cv::Mat is in RGBA format.
-//            // Convert to RGB.
+//            // The cv::Mat is in RGBA format. Convert to RGB.
 //            cv::cvtColor(originalMat, originalMat, cv::COLOR_RGBA2RGB);
-//            
-//            // Adjust white balance.
-//#ifdef WITH_OPENCV_CONTRIB
-//            cv::xphoto::WhiteBalancer *wb;
-//            wb->balanceWhite(originalMat, originalMat);
-//#endif
 //            break;
 //            
 //        case CV_8UC3:
 //            // The cv::Mat is in RGB format.
-//#ifdef WITH_OPENCV_CONTRIB
-//            wb->balanceWhite(originalMat, originalMat);
-//#endif
 //            break;
 //            
 //        default:
@@ -159,6 +149,7 @@ using namespace cv;
     }
 }
 
+// Refresh and update the imageView
 - (void)refresh {
     if (self.videoCamera.running) {
         // Hide the still image.
@@ -170,17 +161,11 @@ using namespace cv;
     } else {
         // Refresh the still image.
         UIImage *image;
-        if (self.videoCamera.grayscaleMode) {
-//            cv::cvtColor(originalStillMat, updatedStillMatGray, cv::COLOR_RGBA2GRAY);
-//            [self processImage:updatedStillMatGray];
-            [self processImage:originalStillMat];
-            image = MatToUIImage(originalStillMat);
-        } else {
-            cv::cvtColor(originalStillMat, updatedStillMatRGBA, cv::COLOR_RGBA2BGRA);
-            [self processImage:updatedStillMatRGBA];
-            cv::cvtColor(updatedStillMatRGBA, updatedStillMatRGBA, cv::COLOR_BGRA2RGBA);
-            image = MatToUIImage(updatedStillMatRGBA);
-        }
+//        cv::cvtColor(originalStillMat, updatedStillMatGray, cv::COLOR_RGBA2GRAY);
+//        [self processImage:updatedStillMatGray];
+        NSLog(@"Before processImage: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
+        [self processImage:originalStillMat];
+        image = MatToUIImage(originalStillMat);
         
         // Display a still image into the view if the camera isn't running!
         self.imageView.image = image;
@@ -188,19 +173,10 @@ using namespace cv;
 }
 
 - (void)processImage:(cv::Mat &)finalMat {
-    
     cv::Mat mat = finalMat.clone();
+    
     // *************************************************************
     // * Feature Detection (SIFT)
-    
-    // Convert to grayscale for feature detection
-    cv::Mat bwCopy;
-    if (mat.type() != CV_8UC1) {
-        cv::cvtColor(mat, bwCopy, cv::COLOR_RGBA2GRAY);
-    } else {
-        bwCopy = mat;
-    }
-    NSLog(@"Before SIFT: %s %dx%d \n", type2str(bwCopy.type()).c_str(), bwCopy.cols, bwCopy.rows);
     
     // nfeatures	The number of best features to retain. The features are ranked by their scores (measured in SIFT algorithm as the local contrast)
     // nOctaveLayers	The number of layers in each octave. 3 is the value used in D. Lowe paper. The number of octaves is computed automatically from the image resolution.
@@ -210,22 +186,24 @@ using namespace cv;
     
     int nF = 70, nOct = 2;
     double cT = 0.06, eT = 20, s = 2.6;
-
+    
+    NSLog(@"Before SIFT: %s %dx%d \n", type2str(mat.type()).c_str(), mat.cols, mat.rows);
+    
     // Construct SIFT object
     // cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create(nF, nOct, cT, eT, s);
     cv::Ptr<cv::xfeatures2d::SIFT> sift = cv::xfeatures2d::SIFT::create();
     
     // Find keypoints in the image
     std::vector<KeyPoint> keypoints;
-    sift->detect(bwCopy, keypoints);
+    sift->detect(mat, keypoints);
     
     // Compute descriptors
     cv::Mat descriptors;
-    sift->compute(bwCopy, keypoints, descriptors);
+    sift->compute(mat, keypoints, descriptors);
     
     // Draw keypoints on image w/ size of keypoint and orientation!
-    // cv::drawKeypoints(bwCopy, keypoints, bwCopy, cv::Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-
+    //     cv::drawKeypoints(bwCopy, keypoints, bwCopy, cv::Scalar::all(-1), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+    
     // *************************************************************
     // * Triangulation
     
@@ -249,8 +227,8 @@ using namespace cv;
     }
     
     // Render Delaunay Triangles and Voronoi Diagram
-    NSLog(@"Before Triangulation: %s %dx%d \n", type2str(mat.type()).c_str(), mat.cols, mat.rows );
-//    color[0] = rand() & 255; color[1] = rand() & 155; color[2] = rand() & 155; color[3] = 205;
+    NSLog(@"Before Triangulation: %s %dx%d \n", type2str(mat.type()).c_str(), mat.cols, mat.rows);
+    //    color[0] = rand() & 255; color[1] = rand() & 155; color[2] = rand() & 155; color[3] = 205;
     
     // Vertices of triangulation
     std::vector<cv::Point> tVerts(3);
@@ -273,34 +251,37 @@ using namespace cv;
         tVerts[0] = cv::Point(cvRound(t[0]), cvRound(t[1]));
         tVerts[1] = cv::Point(cvRound(t[2]), cvRound(t[3]));
         tVerts[2] = cv::Point(cvRound(t[4]), cvRound(t[5]));
-
-        Vec2f c = centersList[i];
-
+        
+        Vec2f c;
+        if (!centersList.empty()) { c = centersList[i]; }
+        
         int x = int(c[0]);
         int y = int(c[1]);
-        cv::Size size = mat.size();
         
         // Stay inside bounding rectangle
-//        if (rect.contains(cv::Point(x, y))) {
-        if (x < size.width && x > 0 && y < size.height && y > 0) {
-            intensity = mat.at<cv::Vec3b>(y, x);
-            int b = intensity.val[0];
-            int g = intensity.val[1];
-            int r = intensity.val[2];
+        if (rect.contains(cv::Point(x, y))) {
+            //        if (x < size.width && x > 0 && y < size.height && y > 0) {
+            intensity = mat.at<cv::Vec3b>(cv::Point(x, y));
+            uchar b = intensity.val[0];
+            uchar g = intensity.val[1];
+            uchar r = intensity.val[2];
             NSLog(@"x: %d, y: %d \t B: %d, G: %d, R: %d", x, y, b, g, r);
             
-            // RGB <- BGR
-            color[0] = intensity.val[2];
-            color[1] = intensity.val[1];
-            color[2] = intensity.val[0];
-            color[3] = 205;
+            // RGBA <- BGR
+            color[0] = r;
+            color[1] = g;
+            color[2] = b;
+            color[3] = 155;
             
-//            line(finalMat, tVerts[0], tVerts[1], color, 1, CV_AA, 0);
-//            line(finalMat, tVerts[1], tVerts[2], color, 1, CV_AA, 0);
-//            line(finalMat, tVerts[2], tVerts[0], color, 1, CV_AA, 0);
+            //            line(finalMat, tVerts[0], tVerts[1], color, 1, CV_AA, 0);
+            //            line(finalMat, tVerts[1], tVerts[2], color, 1, CV_AA, 0);
+            //            line(finalMat, tVerts[2], tVerts[0], color, 1, CV_AA, 0);
             
-            fillConvexPoly(finalMat, tVerts, color, 8, 0);
-//            cv::circle(finalMat, cv::Point(x, y), 10, color, 2);
+            cv::fillConvexPoly(finalMat, tVerts, color, LINE_AA, 0);
+            //            cv::circle(finalMat, cv::Point(x, y), 10, color, -2);
+            
+            //            cv::circle(finalMat, cv::Point(120, 115), 10, cv::Scalar(255, 0, 0), -2);
+            
         }
     }
     
@@ -316,6 +297,7 @@ using namespace cv;
                 break;
         }
     }
+    
     if (self.saveNextFrame) {
         // The video frame, 'mat', is not safe for long-running
         // operations such as saving to file. Thus, we copy its
@@ -331,18 +313,6 @@ using namespace cv;
         [self saveImage:image];
         self.saveNextFrame = NO;
     }
-}
-
-- (IBAction)onColorModeSelected:(UISegmentedControl *)segmentedControl {
-    switch (segmentedControl.selectedSegmentIndex) {
-        case 0:
-            self.videoCamera.grayscaleMode = NO;
-            break;
-        default:
-            self.videoCamera.grayscaleMode = YES;
-            break;
-    }
-    [self refresh];
 }
 
 - (IBAction)onSwitchCameraButtonPressed {
@@ -380,6 +350,7 @@ using namespace cv;
     // Convert the updated matrix to a UIImage and display it in the UIImageView.
     self.imageView.image = MatToUIImage(updatedMat);
 }
+
 
 string type2str(int type) {
     string r;

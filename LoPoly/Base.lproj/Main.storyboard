@@ -26,19 +26,6 @@
                             </imageView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hk3-yC-J8e">
                                 <items>
-                                    <barButtonItem style="plain" id="2ng-eR-IQv">
-                                        <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="DdX-Uo-skI">
-                                            <rect key="frame" x="16" y="7" width="121" height="30"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <segments>
-                                                <segment title="Color"/>
-                                                <segment title="Gray"/>
-                                            </segments>
-                                            <connections>
-                                                <action selector="onColorModeSelected:" destination="BYZ-38-t0r" eventType="valueChanged" id="MK0-oI-aMj"/>
-                                            </connections>
-                                        </segmentedControl>
-                                    </barButtonItem>
                                     <barButtonItem image="SwitchCamera.png" style="plain" id="JjZ-TD-wlE">
                                         <connections>
                                             <action selector="onSwitchCameraButtonPressed" destination="BYZ-38-t0r" id="xrO-uM-Jy7"/>

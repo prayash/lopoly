@@ -31,6 +31,16 @@
                                             <action selector="onSwitchCameraButtonPressed" destination="BYZ-38-t0r" id="xrO-uM-Jy7"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem title="Lines" width="49.5" id="KK7-kU-UwZ">
+                                        <connections>
+                                            <action selector="onLinesPressed:" destination="BYZ-38-t0r" id="T22-ed-djv"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Poly" id="MGG-Y0-yZh">
+                                        <connections>
+                                            <action selector="onPolyPressed:" destination="BYZ-38-t0r" id="DrE-SY-fhJ"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="Rgb-DB-z7Z"/>
                                     <barButtonItem style="plain" systemItem="save" id="odm-Pb-qS6">
                                         <connections>

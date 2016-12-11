@@ -36,28 +36,28 @@ using namespace cv;
 
 @implementation ViewController
 
-    cv::Mat originalMat;
-    cv::Mat updatedMat;
-    cv::Mat grayMat;
+cv::Mat originalMat;
+cv::Mat updatedMat;
+cv::Mat grayMat;
 
-    cv::Mat originalStillMat;
-    cv::Mat updatedStillMatGray;
-    cv::Mat updatedStillMatRGBA;
-    cv::Mat updatedVideoMatGray;
-    cv::Mat updatedVideoMatRGBA;
+cv::Mat originalStillMat;
+cv::Mat updatedStillMatGray;
+cv::Mat updatedStillMatRGBA;
+cv::Mat updatedVideoMatGray;
+cv::Mat updatedVideoMatRGBA;
 
-    cv::Vec3b intensity;
-    cv::Scalar color;
-    // uchar b, g, r;
+cv::Vec3b intensity;
+cv::Scalar color;
 
 // View loaded, off we go!
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    self.renderLinesOnly = true;
+    self.renderPolygonsOnly = false;
     
     // *************************************************************
     // * Utility
- 
+    
     // Load a UIImage from a resource file.
     // UIImage *originalImage = [UIImage imageNamed:@"ZeBum.jpg"];
     UIImage *originalStillImage = [UIImage imageNamed:@"ZeBum.jpg"];
@@ -66,7 +66,7 @@ using namespace cv;
     // UIImageToMat(originalImage, originalMat);
     UIImageToMat(originalStillImage, originalStillMat);
     NSLog(@"*** onLoad: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
-
+    
     
     self.videoCamera = [[VideoCamera alloc] initWithParentView:self.imageView];
     self.videoCamera.defaultAVCaptureSessionPreset = AVCaptureSessionPresetMedium;
@@ -79,24 +79,24 @@ using namespace cv;
     
     // *************************************************************
     // * Basic Image Processing
-//    switch(originalMat.type()) {
-//        case CV_8UC1:
-//            // The cv::Mat is in grayscale format. Convert to RGB.
-//            cv::cvtColor(originalMat, originalMat, cv::COLOR_GRAY2RGB);
-//            break;
-//            
-//        case CV_8UC4:
-//            // The cv::Mat is in RGBA format. Convert to RGB.
-//            cv::cvtColor(originalMat, originalMat, cv::COLOR_RGBA2RGB);
-//            break;
-//            
-//        case CV_8UC3:
-//            // The cv::Mat is in RGB format.
-//            break;
-//            
-//        default:
-//            break;
-//    }
+    //    switch(originalMat.type()) {
+    //        case CV_8UC1:
+    //            // The cv::Mat is in grayscale format. Convert to RGB.
+    //            cv::cvtColor(originalMat, originalMat, cv::COLOR_GRAY2RGB);
+    //            break;
+    //
+    //        case CV_8UC4:
+    //            // The cv::Mat is in RGBA format. Convert to RGB.
+    //            cv::cvtColor(originalMat, originalMat, cv::COLOR_RGBA2RGB);
+    //            break;
+    //
+    //        case CV_8UC3:
+    //            // The cv::Mat is in RGB format.
+    //            break;
+    //
+    //        default:
+    //            break;
+    //    }
     
     // Call update every 5 seconds (only when the app is in the foreground).
     // self.timer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(updateImage) userInfo:nil repeats:YES];
@@ -105,7 +105,7 @@ using namespace cv;
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:true];
-
+    
 #if (TARGET_IPHONE_SIMULATOR)
     NSLog(@"Running on emulator. No camera available.");
     [self refresh];
@@ -149,6 +149,26 @@ using namespace cv;
     }
 }
 
+- (IBAction)onLinesPressed:(id)sender {
+    [self renderMethod:@"lines"];
+}
+
+- (IBAction)onPolyPressed:(id)sender {
+    [self renderMethod:@"polygons"];
+}
+
+- (void)renderMethod:(NSString *)m {
+    if ([m isEqualToString:@"lines"]) {
+        NSLog(@"Rendering only lines and circles.");
+        self.renderPolygonsOnly = false;
+        self.renderLinesOnly = true;
+    } else if ([m isEqualToString:@"polygons"]) {
+        NSLog(@"Rendering only polygons.");
+        self.renderPolygonsOnly = true;
+        self.renderLinesOnly = false;
+    }
+}
+
 // Refresh and update the imageView
 - (void)refresh {
     if (self.videoCamera.running) {
@@ -161,8 +181,8 @@ using namespace cv;
     } else {
         // Refresh the still image.
         UIImage *image;
-//        cv::cvtColor(originalStillMat, updatedStillMatGray, cv::COLOR_RGBA2GRAY);
-//        [self processImage:updatedStillMatGray];
+        //        cv::cvtColor(originalStillMat, updatedStillMatGray, cv::COLOR_RGBA2GRAY);
+        //        [self processImage:updatedStillMatGray];
         NSLog(@"Before processImage: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
         [self processImage:originalStillMat];
         image = MatToUIImage(originalStillMat);
@@ -253,7 +273,7 @@ using namespace cv;
         tVerts[2] = cv::Point(cvRound(t[4]), cvRound(t[5]));
         
         Vec2f c;
-        if (!centersList.empty()) { c = centersList[i]; }
+        if (!centersList.empty()) c = centersList[i];
         
         int x = int(c[0]);
         int y = int(c[1]);
@@ -273,14 +293,15 @@ using namespace cv;
             color[2] = b;
             color[3] = 155;
             
-            //            line(finalMat, tVerts[0], tVerts[1], color, 1, CV_AA, 0);
-            //            line(finalMat, tVerts[1], tVerts[2], color, 1, CV_AA, 0);
-            //            line(finalMat, tVerts[2], tVerts[0], color, 1, CV_AA, 0);
+            if (self.renderPolygonsOnly) cv::fillConvexPoly(finalMat, tVerts, color, LINE_AA, 0);
             
-            cv::fillConvexPoly(finalMat, tVerts, color, LINE_AA, 0);
-            //            cv::circle(finalMat, cv::Point(x, y), 10, color, -2);
-            
-            //            cv::circle(finalMat, cv::Point(120, 115), 10, cv::Scalar(255, 0, 0), -2);
+            if (self.renderLinesOnly) {
+                line(finalMat, tVerts[0], tVerts[1], color, 1, CV_AA, 0);
+                line(finalMat, tVerts[1], tVerts[2], color, 1, CV_AA, 0);
+                line(finalMat, tVerts[2], tVerts[0], color, 1, CV_AA, 0);
+                cv::circle(finalMat, cv::Point(x, y), 2, color, -2);
+                //cv::circle(finalMat, cv::Point(120, 115), 10, cv::Scalar(255, 0, 0), -2);
+            }
             
         }
     }

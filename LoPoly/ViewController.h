@@ -30,10 +30,14 @@
 @property IBOutlet UIToolbar *toolbar;
 @property VideoCamera *videoCamera;
 @property BOOL saveNextFrame;
+@property BOOL renderLinesOnly;
+@property BOOL renderPolygonsOnly;
 
 - (IBAction)onTapToSetPointOfInterest:(UITapGestureRecognizer *)tapGesture;
 - (IBAction)onSwitchCameraButtonPressed;
 - (IBAction)onSaveButtonPressed;
+- (IBAction)onLinesPressed:(id)sender;
+- (IBAction)onPolyPressed:(id)sender;
 
 - (void)refresh;
 - (void)processImage:(cv::Mat &)mat;

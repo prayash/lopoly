@@ -24,7 +24,8 @@
                                     <outletCollection property="gestureRecognizers" destination="alp-ji-lZw" appends="YES" id="Ifk-C7-DRI"/>
                                 </connections>
                             </imageView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hk3-yC-J8e">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="hk3-yC-J8e">
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <items>
                                     <barButtonItem image="SwitchCamera.png" style="plain" id="JjZ-TD-wlE">
                                         <connections>
@@ -48,6 +49,7 @@
                                         </connections>
                                     </barButtonItem>
                                 </items>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </toolbar>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

@@ -59,12 +59,10 @@ cv::Scalar color;
     // * Utility
     
     // Load a UIImage from a resource file.
-    // UIImage *originalImage = [UIImage imageNamed:@"ZeBum.jpg"];
-    UIImage *originalStillImage = [UIImage imageNamed:@"ZeBum.jpg"];
+    UIImage *originalImage = [UIImage imageNamed:@"ZeBum.jpg"];
     
     // Convert the UIImage to a cv::Mat.
-    // UIImageToMat(originalImage, originalMat);
-    UIImageToMat(originalStillImage, originalStillMat);
+    UIImageToMat(originalImage, originalStillMat);
     NSLog(@"*** onLoad: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
     
     
@@ -183,7 +181,7 @@ cv::Scalar color;
         UIImage *image;
         //        cv::cvtColor(originalStillMat, updatedStillMatGray, cv::COLOR_RGBA2GRAY);
         //        [self processImage:updatedStillMatGray];
-        NSLog(@"Before processImage: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
+        // NSLog(@"process: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
         [self processImage:originalStillMat];
         image = MatToUIImage(originalStillMat);
         
@@ -280,7 +278,7 @@ cv::Scalar color;
         
         // Stay inside bounding rectangle
         if (rect.contains(cv::Point(x, y))) {
-            //        if (x < size.width && x > 0 && y < size.height && y > 0) {
+//        if (x < size.width && x > 0 && y < size.height && y > 0) {
             intensity = mat.at<cv::Vec3b>(cv::Point(x, y));
             uchar b = intensity.val[0];
             uchar g = intensity.val[1];
@@ -299,10 +297,8 @@ cv::Scalar color;
                 line(finalMat, tVerts[0], tVerts[1], color, 1, CV_AA, 0);
                 line(finalMat, tVerts[1], tVerts[2], color, 1, CV_AA, 0);
                 line(finalMat, tVerts[2], tVerts[0], color, 1, CV_AA, 0);
-                cv::circle(finalMat, cv::Point(x, y), 2, color, -2);
-                //cv::circle(finalMat, cv::Point(120, 115), 10, cv::Scalar(255, 0, 0), -2);
+                cv::circle(finalMat, cv::Point(x, y), 3, color, -2);
             }
-            
         }
     }
     

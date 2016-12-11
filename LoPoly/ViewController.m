@@ -45,6 +45,7 @@ cv::Mat updatedStillMatGray;
 cv::Mat updatedStillMatRGBA;
 cv::Mat updatedVideoMatGray;
 cv::Mat updatedVideoMatRGBA;
+cv::Mat savedImage;
 
 cv::Vec3b intensity;
 cv::Scalar color;
@@ -52,8 +53,7 @@ cv::Scalar color;
 // View loaded, off we go!
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.renderLinesOnly = true;
-    self.renderPolygonsOnly = false;
+    [self renderMethod:@"lines"];
     
     // *************************************************************
     // * Utility
@@ -72,8 +72,6 @@ cv::Scalar color;
     self.videoCamera.defaultFPS = 30;
     self.videoCamera.grayscaleMode = NO;
     self.videoCamera.delegate = self;
-    
-    originalMat = grayMat;
     
     // *************************************************************
     // * Basic Image Processing
@@ -184,6 +182,8 @@ cv::Scalar color;
         // NSLog(@"process: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
         [self processImage:originalStillMat];
         image = MatToUIImage(originalStillMat);
+        updatedVideoMatRGBA = originalStillMat.clone();
+        
         
         // Display a still image into the view if the camera isn't running!
         self.imageView.image = image;
@@ -297,7 +297,7 @@ cv::Scalar color;
                 line(finalMat, tVerts[0], tVerts[1], color, 1, CV_AA, 0);
                 line(finalMat, tVerts[1], tVerts[2], color, 1, CV_AA, 0);
                 line(finalMat, tVerts[2], tVerts[0], color, 1, CV_AA, 0);
-                cv::circle(finalMat, cv::Point(x, y), 3, color, -2);
+                // cv::circle(finalMat, cv::Point(x, y), 3, color, 2);
             }
         }
     }
@@ -320,13 +320,8 @@ cv::Scalar color;
         // operations such as saving to file. Thus, we copy its
         // data to another cv::Mat first.
         UIImage *image;
-        if (self.videoCamera.grayscaleMode) {
-            mat.copyTo(updatedVideoMatGray);
-            image = MatToUIImage(updatedVideoMatGray);
-        } else {
-            cv::cvtColor(mat, updatedVideoMatRGBA, cv::COLOR_BGRA2RGBA);
-            image = MatToUIImage(updatedVideoMatRGBA);
-        }
+        finalMat.copyTo(savedImage);
+        image = MatToUIImage(savedImage);
         [self saveImage:image];
         self.saveNextFrame = NO;
     }
@@ -368,6 +363,58 @@ cv::Scalar color;
     self.imageView.image = MatToUIImage(updatedMat);
 }
 
+- (IBAction)onSaveButtonPressed {
+    [self startBusyMode];
+    if (self.videoCamera.running) {
+        self.saveNextFrame = YES;
+    } else {
+        [self saveImage:self.imageView.image];
+    }
+}
+
+- (void)saveImage:(UIImage *)image {
+    // Try to save the image to a temporary file.
+    NSString *outputPath = [NSString stringWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.png"];
+    if (![UIImagePNGRepresentation(image) writeToFile:outputPath atomically:YES]) {
+        // Show an alert describing the failure.
+        NSLog(@"*** Save failed. ***");
+        // [self showSaveImageFailureAlertWithMessage:@"The image could not be saved to the temporary directory."];
+         return;
+    }
+    
+    // Try to add the image to the Photos library.
+    NSURL *outputURL = [NSURL URLWithString:outputPath];
+    PHPhotoLibrary *photoLibrary = [PHPhotoLibrary sharedPhotoLibrary];
+    [photoLibrary performChanges:^{
+        [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:outputURL];
+    } completionHandler:^(BOOL success, NSError *error) {
+        if (success) {
+            // Show an alert describing the success, with sharing options.
+            // [self showSaveImageSuccessAlertWithImage:image];
+        } else {
+            // Show an alert describing the failure.
+            // [self showSaveImageFailureAlertWithMessage: error.localizedDescription];
+        }
+    }];
+}
+
+- (void)startBusyMode {
+    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self.activityIndicatorView startAnimating];
+//        for (UIBarItem *item in self.toolbar.items) {
+//            item.enabled = NO;
+//        }
+    });
+}
+
+- (void)stopBusyMode {
+    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self.activityIndicatorView stopAnimating];
+//        for (UIBarItem *item in self.toolbar.items) {
+//            item.enabled = YES;
+//        }
+    });
+}
 
 string type2str(int type) {
     string r;

@@ -5,6 +5,11 @@
 // managing the application's life cycle.
 
 #import <UIKit/UIKit.h>
+#import "LGSideMenuController.h"
+
+#define kMainViewController                            (MainViewController *)[UIApplication sharedApplication].delegate.window.rootViewController
+
+
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 

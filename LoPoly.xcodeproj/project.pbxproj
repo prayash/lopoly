@@ -10,6 +10,7 @@
 		ED04B10D1DF60716005E8B03 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED75C7A71DEDF2C800A517AE /* AssetsLibrary.framework */; };
 		ED0A10721DFD043F00D9524D /* LGSideMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = ED0A106F1DFD043F00D9524D /* LGSideMenuController.m */; };
 		ED0A10731DFD043F00D9524D /* UIViewController+LGSideMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = ED0A10711DFD043F00D9524D /* UIViewController+LGSideMenuController.m */; };
+		ED22B9AB1E52918200124A0F /* HomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ED22B9AA1E52918200124A0F /* HomeViewController.m */; };
 		ED5E5DDC1DD1902400D86E44 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED5E5DDB1DD1902400D86E44 /* main.m */; };
 		ED5E5DDF1DD1902400D86E44 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = ED5E5DDE1DD1902400D86E44 /* AppDelegate.m */; };
 		ED5E5DE21DD1902400D86E44 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ED5E5DE11DD1902400D86E44 /* ViewController.m */; };
@@ -40,6 +41,8 @@
 		ED0A106F1DFD043F00D9524D /* LGSideMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LGSideMenuController.m; sourceTree = "<group>"; };
 		ED0A10701DFD043F00D9524D /* UIViewController+LGSideMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+LGSideMenuController.h"; sourceTree = "<group>"; };
 		ED0A10711DFD043F00D9524D /* UIViewController+LGSideMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+LGSideMenuController.m"; sourceTree = "<group>"; };
+		ED22B9A91E52918200124A0F /* HomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HomeViewController.h; sourceTree = "<group>"; };
+		ED22B9AA1E52918200124A0F /* HomeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HomeViewController.m; sourceTree = "<group>"; };
 		ED5E5DD71DD1902400D86E44 /* LoPoly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoPoly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED5E5DDB1DD1902400D86E44 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		ED5E5DDD1DD1902400D86E44 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -130,6 +133,8 @@
 			children = (
 				ED5E5DDD1DD1902400D86E44 /* AppDelegate.h */,
 				ED5E5DDE1DD1902400D86E44 /* AppDelegate.m */,
+				ED22B9A91E52918200124A0F /* HomeViewController.h */,
+				ED22B9AA1E52918200124A0F /* HomeViewController.m */,
 				ED5E5DE01DD1902400D86E44 /* ViewController.h */,
 				ED5E5DE11DD1902400D86E44 /* ViewController.m */,
 				ED5E5DE31DD1902500D86E44 /* Main.storyboard */,
@@ -259,6 +264,7 @@
 				ED5E5DE21DD1902400D86E44 /* ViewController.m in Sources */,
 				ED5E5DDF1DD1902400D86E44 /* AppDelegate.m in Sources */,
 				ED5E5DDC1DD1902400D86E44 /* main.m in Sources */,
+				ED22B9AB1E52918200124A0F /* HomeViewController.m in Sources */,
 				ED0A10731DFD043F00D9524D /* UIViewController+LGSideMenuController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

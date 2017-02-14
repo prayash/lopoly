@@ -55,6 +55,18 @@ cv::Scalar color;
     [super viewDidLoad];
     [self renderMethod:@"lines"];
     
+    ViewController *viewController = [ViewController new];
+    
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
+    
+    LGSideMenuController *sideMenuController = [[LGSideMenuController alloc] initWithRootViewController:navigationController];
+    
+    [sideMenuController setLeftViewEnabledWithWidth:250.0 presentationStyle:LGSideMenuPresentationStyleSlideAbove alwaysVisibleOptions:LGSideMenuAlwaysVisibleOnNone];
+    
+    UITableViewController *leftViewController = [UITableViewController new];
+    
+    [sideMenuController.leftView addSubview:leftViewController.tableView];
+    
     // *************************************************************
     // * Utility
     
@@ -147,6 +159,7 @@ cv::Scalar color;
 
 - (IBAction)onLinesPressed:(id)sender {
     [self renderMethod:@"lines"];
+    // [MainViewController showLeftViewAnimated:YES completionHandler:nil];
 }
 
 - (IBAction)onPolyPressed:(id)sender {
@@ -182,9 +195,7 @@ cv::Scalar color;
         // NSLog(@"process: %s %dx%d \n", type2str(originalStillMat.type()).c_str(), originalStillMat.cols, originalStillMat.rows);
         [self processImage:originalStillMat];
         image = MatToUIImage(originalStillMat);
-        updatedVideoMatRGBA = originalStillMat.clone();
-        
-        
+
         // Display a still image into the view if the camera isn't running!
         self.imageView.image = image;
     }
@@ -260,6 +271,9 @@ cv::Scalar color;
     // Get center values
     std::vector<Point2f> centersList;
     subdiv.getVoronoiFacetList(vector<int>(), facets, centersList);
+    
+    // Fill image with white first
+    // cv::rectangle(finalMat, cv::Point(0, 0), cv::Point(size.width, size.height), cv::Scalar::all(255));
     
     // This is where the mesh gets colored
     for (size_t i = 0; i < triangleList.size(); i++) {

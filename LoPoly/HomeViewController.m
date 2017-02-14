@@ -24,6 +24,18 @@
                                    target:self
                                    action:@selector(flipView:)];
     self.navigationItem.rightBarButtonItem = flipButton;
+    self.navigationController.toolbarHidden = NO;
+    
+    UIBarButtonItem *flexibleItem = [[UIBarButtonItem alloc]
+                                     initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+    UIBarButtonItem *item1 = [[UIBarButtonItem alloc]
+                              initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:nil];
+    UIBarButtonItem *item2 = [[UIBarButtonItem alloc]
+                              initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:nil];
+    NSArray *items = [NSArray arrayWithObjects:item1, flexibleItem, item2, nil];
+    self.toolbarItems = items;
+    self.navigationController.toolbar.barStyle = UIBarStyleBlack;
+    self.navigationController.toolbar.tintColor = [UIColor whiteColor];
 }
 
 -(IBAction)flipView:(id)sender {

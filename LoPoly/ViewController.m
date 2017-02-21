@@ -327,6 +327,10 @@ cv::Scalar color;
     }
 }
 
+- (void)processImageHelper:(cv::Mat &)mat {
+    
+}
+
 - (IBAction)onSwitchCameraButtonPressed {
     if (self.videoCamera.running) {
         switch (self.videoCamera.defaultAVCaptureDevicePosition) {

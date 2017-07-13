@@ -1,4 +1,4 @@
-#LoPoly
+# LoPoly
 
 Prayash Thapa and Martin Fejka
 
